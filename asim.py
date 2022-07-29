@@ -14,13 +14,13 @@ class Component(object):
             child.print()
 
     def receive(self, msg):
-        pass
+        raise NotImplementedError
 
     def changeState(self, ctime):
-        pass
+        raise NotImplementedError
 
     def printState(self):
-        pass
+        raise NotImplementedError
 
     def tick(self, ctime):
         for child in self.children:
@@ -49,10 +49,12 @@ class Sink(Component):
 
     def receive(self, msg):
         self.countReceived += 1
-        #print('sink received: %s' % msg)
+
+    def changeState(self, ctime):
+        pass 
 
     def printState(self):
-        print('%s -> %d' % (self.name, self.countReceived))
+        print('%s -> count=%d' % (self.name, self.countReceived))
 
 class Conveyer(Component):
     def __init__(self, name, description=None, speed = 1, capacity = 10):
