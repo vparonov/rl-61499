@@ -69,9 +69,9 @@ class Agent(object):
         raise NotImplementedError
 
 class PickingAgent(Agent):
-    def __init__(self, name, description=None, speed=1, destination=None) :
+    def __init__(self, name, description=None, delay=1, destination=None) :
         super().__init__(name, description)
-        self.speed = speed  
+        self.delay = delay  
         self.destination = destination
         self.workload = None
         self.counter = 0 
@@ -93,7 +93,7 @@ class PickingAgent(Agent):
             return
 
         print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
-        self.counter = self.speed
+        self.counter = self.delay
 
     
 class Sink(Component):
@@ -111,9 +111,9 @@ class Sink(Component):
         print('%s -> count=%d' % (self.name, self.countReceived))
 
 class Conveyer(Component):
-    def __init__(self, name, description=None, speed = 1, capacity = 10):
+    def __init__(self, name, description=None, delay = 1, capacity = 10):
         super().__init__(name, description)
-        self.speed = speed
+        self.delay = delay
         self.capacity = capacity
         self.buffer = [None] * self.capacity
 
@@ -138,7 +138,7 @@ class Conveyer(Component):
         raise Exception('%s is full ' % self.name)
            
     def changeState(self, ctime):
-        if ctime % self.speed == 0:
+        if ctime % self.delay == 0:
             outputMsg = self.buffer[self.capacity-1]
             self.buffer.insert(0,self.buffer.pop())
             self.buffer[0] = None 
@@ -170,12 +170,12 @@ def genNitems(n):
 def main():
     print("Starting")
     source = Source("source","warehouse", rate=1, generator = genNitems(10))#lambda t: {"idx": t})
-    c1 = Conveyer("c1","c1", speed = 1, capacity = 20)
-    c2 = Conveyer("c2","c2", speed = 1, capacity = 5)
+    c1 = Conveyer("c1","c1", delay = 1, capacity = 20)
+    c2 = Conveyer("c2","c2", delay = 1, capacity = 5)
     sink = Sink("sink","final sink")
-    a1 = PickingAgent("a1","a1", speed = 5, destination=c2)
-    a2 = PickingAgent("a2","a2", speed = 5, destination=c2)
-    a3 = PickingAgent("a3","a3", speed = 5, destination=c2)
+    a1 = PickingAgent("a1","a1", delay = 5, destination=c2)
+    a2 = PickingAgent("a2","a2", delay = 5, destination=c2)
+    a3 = PickingAgent("a3","a3", delay = 5, destination=c2)
 
     source.add_child(c1)
     c1.add_agent(a1)
