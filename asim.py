@@ -1,12 +1,20 @@
 
+from curses import tigetflag
+from this import s
+
+
 class Component(object):
     def __init__(self, name, description=None):
         self.name = name
         self.description = description
         self.children = []
+        self.agents = []
 
     def add_child(self, child):
         self.children.append(child)
+
+    def add_agent(self, agent):
+        self.agents.append(agent)
 
     def print(self):
         self.printState()
@@ -22,9 +30,19 @@ class Component(object):
     def printState(self):
         raise NotImplementedError
 
+    def getItem(self):
+        raise NotImplementedError
+
+    def putItem(self, item):
+        raise NotImplementedError
+
     def tick(self, ctime):
         for child in self.children:
             child.tick(ctime)
+
+        for agent in self.agents:  
+            print('Agent %s has tick time' % agent.name)
+            agent.act(self, ctime)
         self.changeState(ctime)
 
 class Source(Component):
@@ -42,6 +60,42 @@ class Source(Component):
     def printState(self):
         print('%s -> %d' % (self.name, self.idx))
 
+class Agent(object):   
+    def __init__(self, name, description=None) :
+        self.name = name
+        self.description = description
+
+    def act(self, component, ctime):
+        raise NotImplementedError
+
+class PickingAgent(Agent):
+    def __init__(self, name, description=None, speed=1, destination=None) :
+        super().__init__(name, description)
+        self.speed = speed  
+        self.destination = destination
+        self.workload = None
+        self.counter = 0 
+    
+    def act(self, component, ctime):
+        if self.workload is not None :
+            self.counter -= 1
+            if self.counter != 0 :
+                print("%d agent %s is waiting %d" % (ctime, self.name, self.counter))
+                return 
+            else:
+                print("%d agent %s is ready with msg = %s" % (ctime, self.name, self.workload))
+                msg = self.workload
+                msg['p'] = True 
+                msg['a'] = self.name
+                self.destination.putItem(msg) 
+        self.workload = component.getItem()
+        if self.workload is None:
+            return
+
+        print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
+        self.counter = self.speed
+
+    
 class Sink(Component):
     def __init__(self, name, description=None):
         super().__init__(name, description)
@@ -68,6 +122,21 @@ class Conveyer(Component):
             raise Exception('%s is full ' % self.name)
         self.buffer[0] = msg
 
+    # gets an item from the conveyeror and returns the item
+    def getItem(self):
+        for ix in range(self.capacity-1, -1, -1):
+            if self.buffer[ix] is not None:
+                item = self.buffer[ix]
+                self.buffer[ix] = None
+                return item
+    # puts an item to the conveyeror at the first empty position from the beginning
+    def putItem(self, item):
+        for ix in range(self.capacity):
+            if self.buffer[ix] is None:
+                self.buffer[ix] = item
+                return 
+        raise Exception('%s is full ' % self.name)
+           
     def changeState(self, ctime):
         if ctime % self.speed == 0:
             outputMsg = self.buffer[self.capacity-1]
@@ -90,19 +159,35 @@ class Conveyer(Component):
                 print("()", end = delim)
         print("")
 
+def genNitems(n):
+    def g(ctime):
+        if ctime <= n:
+            return {"idx": ctime}
+        else:
+            return None 
+
+    return g 
 def main():
     print("Starting")
-    source = Source("source","warehouse", rate=1, generator = lambda t: {"idx": t})
-    c1 = Conveyer("c1","c1", speed = 1, capacity = 2)
+    source = Source("source","warehouse", rate=1, generator = genNitems(10))#lambda t: {"idx": t})
+    c1 = Conveyer("c1","c1", speed = 1, capacity = 20)
+    c2 = Conveyer("c2","c2", speed = 1, capacity = 5)
     sink = Sink("sink","final sink")
-
+    a1 = PickingAgent("a1","a1", speed = 5, destination=c2)
+    a2 = PickingAgent("a2","a2", speed = 5, destination=c2)
+    a3 = PickingAgent("a3","a3", speed = 5, destination=c2)
 
     source.add_child(c1)
-    c1.add_child(sink)
+    c1.add_agent(a1)
+    c1.add_agent(a2)
+    c1.add_agent(a3)
+    c2.add_child(sink)
     
-    for t in range(1,10):
+    for t in range(1,20):
         source.tick(t)
+        c2.tick(t) 
         source.print()
+        c2.print()
 
 
 if __name__ == '__main__':
