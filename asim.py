@@ -54,9 +54,10 @@ class Source(Component):
 
     def changeState(self, ctime):
         if ctime % self.rate == 0 :
-            self.idx = self.idx + 1
             for child in self.children:
-                child.receive(self.generator(self.idx))
+                if child.receive(self.generator(self.idx+1)) == True:
+                    self.idx = self.idx + 1
+       
     def printState(self):
         print('%s -> %d' % (self.name, self.idx))
 
@@ -115,12 +116,29 @@ class Conveyer(Component):
         super().__init__(name, description)
         self.delay = delay
         self.capacity = capacity
+        self.on = True 
         self.buffer = [None] * self.capacity
 
     def receive(self, msg):
+        if self.on == False:
+            return False  
+
         if self.buffer[0] is not None:
-            raise Exception('%s is full ' % self.name)
+            return False 
+
         self.buffer[0] = msg
+        return True 
+
+    def start(self):
+        self.on = True
+    
+    def stop(self):
+        self.on = False
+
+    def add_child(self, child):
+        if len(self.children) > 0:
+            raise Exception('%s. The conveyeror can have only one child.' % self.name)
+        return super().add_child(child) 
 
     # gets an item from the conveyeror and returns the item
     def getItem(self):
@@ -129,6 +147,7 @@ class Conveyer(Component):
                 item = self.buffer[ix]
                 self.buffer[ix] = None
                 return item
+
     # puts an item to the conveyeror at the first empty position from the beginning
     def putItem(self, item):
         for ix in range(self.capacity):
@@ -138,14 +157,19 @@ class Conveyer(Component):
         raise Exception('%s is full ' % self.name)
            
     def changeState(self, ctime):
+        if self.on == False:
+            return False  
+
         if ctime % self.delay == 0:
             outputMsg = self.buffer[self.capacity-1]
+            if outputMsg is not None:
+                next = self.children[0] # the conveyeror must have only one child
+                if next.receive(outputMsg) == False:
+                    return False    
+
             self.buffer.insert(0,self.buffer.pop())
             self.buffer[0] = None 
-
-            if outputMsg is not None:
-                for child in self.children:
-                    child.receive(outputMsg)   
+        return True 
 
     def printState(self):
         print('%s -> [' % (self.name), end = '')
@@ -159,6 +183,24 @@ class Conveyer(Component):
                 print("()", end = delim)
         print("")
 
+class Diverter(Component):  
+    def __init__(self, name, description):          
+        super().__init__(name, description)
+        self.straight = None
+        self.divert = None
+        self.predicate = None
+
+    def connect(self, straightConnection, divertConnection, divertPredicate):
+        self.straight = straightConnection
+        self.divert = divertConnection 
+        self.predicate = divertPredicate    
+
+    def receive(self, msg):
+        if self.predicate(msg):
+            return self.divert.receive(msg)
+        else:
+            return self.straight.receive(msg)
+
 def genNitems(n):
     def g(ctime):
         if ctime <= n:
@@ -169,6 +211,11 @@ def genNitems(n):
     return g 
 def main():
     print("Starting")
+    #test1()
+    #test2()
+    testAFrame()
+
+def test1():
     source = Source("source","warehouse", rate=1, generator = genNitems(10))#lambda t: {"idx": t})
     c1 = Conveyer("c1","c1", delay = 1, capacity = 20)
     c2 = Conveyer("c2","c2", delay = 1, capacity = 5)
@@ -189,6 +236,27 @@ def main():
         source.print()
         c2.print()
 
+def test2():
+    source = Source("source","warehouse", rate=1, generator = genNitems(10))#lambda t: {"idx": t})
+    c1 = Conveyer("c1","c1", delay = 1, capacity = 20)
+    c2 = Conveyer("c2","c2", delay = 1, capacity = 5)
+    sink = Sink("sink","final sink")
+    c2.add_child(sink)
+
+    source.add_child(c1)
+
+
+def testAFrame():
+    source = Source("source","warehouse", rate=1, generator = genNitems(10))
+    c1 = Conveyer("c1","c1", delay = 1, capacity =1)
+    sink = Sink("sink","sink")
+
+    source.add_child(c1)
+    c1.add_child(sink)
+
+    for t in range(1,20):
+        source.tick(t)
+        source.print()
 
 if __name__ == '__main__':
     main()
