@@ -1,13 +1,16 @@
+from xml.etree.ElementPath import prepare_predicate
 from agent import Agent
 
 
 class PickingAgent(Agent):
-    def __init__(self, name, description=None, delay=1, destination=None) :
+    def __init__(self, name, description=None, predicate = None, delay=1, destination=None, stopConveyor= False) :
         super().__init__(name, description)
         self.delay = delay  
         self.destination = destination
         self.workload = None
         self.counter = 0 
+        self.predicate = predicate
+        self.stopConveyor = stopConveyor
     
     def act(self, component, ctime):
         if self.workload is not None :
@@ -20,10 +23,26 @@ class PickingAgent(Agent):
                 msg = self.workload
                 msg['p'] = True 
                 msg['a'] = self.name
-                self.destination.putItem(msg) 
+
+                self.destination.putItem(msg)
+                if self.stopConveyor == True:
+                    component.start() 
+
+  
         self.workload = component.getItem()
+
         if self.workload is None:
             return
+
+        # if the agent's predicate returns False the item is returned to the source component
+        # i.e. it should not be processed from the agent
+        if self.predicate != None and self.predicate(self.workload) == False :
+            component.putItem(self.workload)
+            self.workload = None
+            return 
+
+        if self.stopConveyor == True:
+            component.stop() 
 
         print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
         self.counter = self.delay

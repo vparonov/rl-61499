@@ -19,6 +19,12 @@ class Component(object):
     def receive(self, msg):
         raise NotImplementedError
 
+    def start(self):
+        raise NotImplementedError
+    
+    def stop(self):
+        raise NotImplementedError
+
     def changeState(self, ctime):
         raise NotImplementedError
 

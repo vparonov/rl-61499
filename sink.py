@@ -8,6 +8,9 @@ class Sink(Component):
     def receive(self, msg):
         self.countReceived += 1
 
+    def putItem(self, item):
+        self.receive(item)
+
     def changeState(self, ctime):
         pass 
 
