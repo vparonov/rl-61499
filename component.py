@@ -8,6 +8,9 @@ class Component(object):
     def add_child(self, child):
         self.children.append(child)
 
+    def connect(self, next):
+        self.add_child(next)
+
     def add_agent(self, agent):
         self.agents.append(agent)
 

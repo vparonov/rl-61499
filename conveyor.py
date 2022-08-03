@@ -22,7 +22,7 @@ class Conveyor(Component):
     
     def stop(self):
         self.on = False
-
+        
     def add_child(self, child):
         if len(self.children) > 0:
             raise Exception('%s. The conveyeror can have only one child.' % self.name)
@@ -51,6 +51,11 @@ class Conveyor(Component):
         if ctime % self.delay == 0:
             outputMsg = self.buffer[self.capacity-1]
             if outputMsg is not None:
+
+                if len(self.children) == 0:
+                    self.stop()
+                    return False 
+
                 next = self.children[0] # the conveyeror must have only one child
                 if next.receive(outputMsg) == False:
                     return False    
@@ -68,5 +73,5 @@ class Conveyor(Component):
             if self.buffer[ix] is not None:
                 print(self.buffer[ix], end = delim)
             else:
-                print("()", end = delim)
-        print("")
+                print('()', end = delim)
+        print('')

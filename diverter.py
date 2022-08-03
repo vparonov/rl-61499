@@ -10,10 +10,21 @@ class Diverter(Component):
     def connect(self, straightConnection, divertConnection, divertPredicate):
         self.straight = straightConnection
         self.divert = divertConnection 
+
+        self.add_child(straightConnection)
+        self.add_child(divertConnection)
+
         self.predicate = divertPredicate    
 
     def receive(self, msg):
         if self.predicate(msg):
+            print('%s divert to %s' % (self.name, self.divert.name))
             return self.divert.receive(msg)
         else:
             return self.straight.receive(msg)
+
+    def changeState(self, ctime):
+        return True 
+
+    def printState(self):
+        pass

@@ -3,7 +3,9 @@ from agent import Agent
 
 
 class PickingAgent(Agent):
-    def __init__(self, name, description=None, predicate = None, delay=1, destination=None, stopConveyor= False) :
+    def __init__(self, name, description=None, predicate = None, delay=1, 
+            destination=None, stopConveyor= False, 
+            markWorkload = None) :
         super().__init__(name, description)
         self.delay = delay  
         self.destination = destination
@@ -11,19 +13,18 @@ class PickingAgent(Agent):
         self.counter = 0 
         self.predicate = predicate
         self.stopConveyor = stopConveyor
-    
+        self.markWorkload = markWorkload
+
     def act(self, component, ctime):
         if self.workload is not None :
             self.counter -= 1
             if self.counter != 0 :
-                print("%d agent %s is waiting %d" % (ctime, self.name, self.counter))
+                print('%d agent %s is waiting %d' % (ctime, self.name, self.counter))
                 return 
             else:
-                print("%d agent %s is ready with msg = %s" % (ctime, self.name, self.workload))
+                print('%d agent %s is ready with msg = %s' % (ctime, self.name, self.workload))
                 msg = self.workload
-                msg['p'] = True 
-                msg['a'] = self.name
-
+                self.markWorkload(msg, ctime)
                 self.destination.putItem(msg)
                 if self.stopConveyor == True:
                     component.start() 
