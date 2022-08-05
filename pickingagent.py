@@ -18,17 +18,19 @@ class PickingAgent(Agent):
     def act(self, component, ctime):
         if self.workload is not None :
             self.counter -= 1
-            if self.counter != 0 :
+            if self.counter > 0 :
                 print('%d agent %s is waiting %d' % (ctime, self.name, self.counter))
                 return 
             else:
-                print('%d agent %s is ready with msg = %s' % (ctime, self.name, self.workload))
-                msg = self.workload
-                self.markWorkload(msg, ctime)
-                self.destination.putItem(msg)
-                if self.stopConveyor == True:
-                    component.start() 
-
+                if self.destination.putItem(self.workload) == True:
+                    print('%d agent %s is ready with workload = %s' % (ctime, self.name, self.workload))
+                    self.markWorkload(self.workload, ctime)
+                    self.workload = None
+                    if self.stopConveyor == True:
+                        component.start() 
+                else:
+                   print('%d agent %s the destination %s is full! the agent will wait' % (ctime, self.name, self.destination.name))
+ 
   
         self.workload = component.getItem()
 

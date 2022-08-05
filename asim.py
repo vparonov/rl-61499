@@ -29,7 +29,7 @@ def main():
     testAFrame()
 
 def testAFrame():
-    source = Source('source','warehouse', rate=1, generator = genNitems(10))
+    source = Source('source','warehouse', rate=1, generator = genNitems(1))
     c1 = Conveyor('c1','c1', delay = 1, capacity =1)
     c2 = Conveyor('c2','c2', delay = 1, capacity =5)
     c3 = Conveyor('c3','c3', delay = 1, capacity =5)
@@ -44,7 +44,7 @@ def testAFrame():
     s01Picker = PickingAgent(
         's01Picker',
         's01Picker', 
-        destination=c3, 
+        destination=c2, 
         delay=4,
         markWorkload= markAsPicked('S01'), 
         stopConveyor=False)

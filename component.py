@@ -45,6 +45,5 @@ class Component(object):
             child.tick(ctime)
 
         for agent in self.agents:  
-            print('Agent %s has tick time' % agent.name)
             agent.act(self, ctime)
         self.changeState(ctime)

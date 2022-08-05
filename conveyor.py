@@ -41,8 +41,8 @@ class Conveyor(Component):
         for ix in range(self.capacity):
             if self.buffer[ix] is None:
                 self.buffer[ix] = item
-                return 
-        raise Exception('%s is full ' % self.name)
+                return True 
+        return False 
            
     def changeState(self, ctime):
         if self.on == False:
