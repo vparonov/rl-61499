@@ -65,7 +65,7 @@ class Conveyor(Component):
         return True 
 
     def printState(self):
-        print('%s -> [' % (self.name), end = '')
+        print('%s(%d) -> [' % (self.name, self.on), end = '')
         for ix in range(0, self.capacity): 
             delim = ','
             if ix == self.capacity - 1:

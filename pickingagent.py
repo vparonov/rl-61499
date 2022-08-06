@@ -29,10 +29,11 @@ class PickingAgent(Agent):
                     if self.stopConveyor == True:
                         component.start() 
                 else:
-                   print('%d agent %s the destination %s is full! the agent will wait' % (ctime, self.name, self.destination.name))
- 
+                    print('%d agent %s the destination %s is full! the agent will wait' % (ctime, self.name, self.destination.name))
+                    return 
   
         self.workload = component.getItem()
+
 
         if self.workload is None:
             return
@@ -46,6 +47,9 @@ class PickingAgent(Agent):
 
         if self.stopConveyor == True:
             component.stop() 
+        else:
+            # start the component in case if was full and stopped before the agent picked the item
+            component.start()
 
         print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
         self.counter = self.delay

@@ -1,19 +1,21 @@
+from cmath import sin
 from os import pread
 from tracemalloc import stop
+import random
 from diverter import Diverter
 from source import Source
 from sink import Sink
 from conveyor import Conveyor
 from pickingagent import PickingAgent
+from probe import Probe
+
 
 def genNitems(n):
     def g(ctime):
         if ctime <= n:
-            afp01Flag = 0
-            if ctime % 2 == 0:
-                afp01Flag = 1
-
-            return {'idx': ctime, 'AFP01': afp01Flag, 'S01':1 } 
+            f1 = 1 # random.choice([0,1])
+            f2 = 1 # random.choice([0,1])
+            return {'idx': ctime, 'AFP01': f1, 'S01':f2 } 
         else:
             return None 
 
@@ -29,13 +31,18 @@ def main():
     testAFrame()
 
 def testAFrame():
-    source = Source('source','warehouse', rate=1, generator = genNitems(1))
+    nitems = 50
+
+    source = Source('source','warehouse', rate=1, generator = genNitems(nitems))
     c1 = Conveyor('c1','c1', delay = 1, capacity =1)
     c2 = Conveyor('c2','c2', delay = 1, capacity =5)
     c3 = Conveyor('c3','c3', delay = 1, capacity =5)
     s01 = Conveyor('s01','s01', delay = 1, capacity = 5)
     ds01 = Diverter('ds01','ds01')
     sink = Sink('sink','sink')
+    probe = Probe('all picked probe','', 
+        checkerPredicate = lambda workload: workload['AFP01'] != 1 and workload['S01'] != 1)
+
     aframe = PickingAgent('aframe', 'aframe',  destination=c2, delay=4, 
         stopConveyor=True, 
         markWorkload= markAsPicked('AFP01'), 
@@ -62,10 +69,22 @@ def testAFrame():
     
     s01.add_agent(s01Picker)
 
-    c3.connect(sink)
-    for t in range(1,20):
+    c3.connect(probe)
+
+    probe.connect(sink)
+    #for t in range(1,50):
+    t = 1 
+    while True:
         source.tick(t)
         source.print()
+        t += 1
+        if sink.countReceived == nitems:
+            break 
+
+        if t > 300:
+            break 
+    print('Done after %s ticks' % t)
+    sink.printAll()
 
 if __name__ == '__main__':
     main()
