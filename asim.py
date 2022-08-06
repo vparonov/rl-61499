@@ -81,8 +81,6 @@ def testAFrame():
         if sink.countReceived == nitems:
             break 
 
-        if t > 300:
-            break 
     print('Done after %s ticks' % t)
     sink.printAll()
 

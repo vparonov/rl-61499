@@ -51,7 +51,6 @@ class Conveyor(Component):
         if ctime % self.delay == 0:
             outputMsg = self.buffer[self.capacity-1]
             if outputMsg is not None:
-
                 if len(self.children) == 0:
                     self.stop()
                     return False 
