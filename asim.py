@@ -28,9 +28,9 @@ def markAsPicked(station):
 
 def main():
     print('------------------')
-    testAFrame()
+    test()
 
-def testAFrame():
+def test():
     nitems = 50
 
     source = Source('source','warehouse', rate=1, generator = genNitems(nitems))
