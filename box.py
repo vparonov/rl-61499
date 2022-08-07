@@ -10,7 +10,7 @@ class Box(object):
         self.deadline = deadline
 
     def __str__(self):
-        return "Box(%s, %s)" % (self.id, self.type)
+        return "B(%s, %s, %s)" % (self.id, self.type, self.routeToString())
     
     def ixToStation(self, ix):
         if ix == 0:
@@ -21,7 +21,7 @@ class Box(object):
             return str(ix- 1) 
 
     def routeToString(self):
-        res = ''
+        res = '['
         tmp = self.route 
         tmp1 = self.pickedMask 
         for i in range(8):
@@ -35,7 +35,9 @@ class Box(object):
                 res +=  colors.HEADER
                 res += '_' + colors.ENDC
             tmp >>= 1
-            tmp1 >>=1 
+            tmp1 >>=1
+
+        res += ']' 
         return res
 
 
@@ -54,7 +56,7 @@ class colors:
 def testBox():
     b = Box(1, "L", 0xAA, 1234)
     b.pickedMask = 0XA3
-    print(b.routeToString())
+    print(b)
 
 if __name__ == '__main__':
     testBox()
