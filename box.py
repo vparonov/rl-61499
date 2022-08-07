@@ -10,8 +10,16 @@ class Box(object):
         self.deadline = deadline
 
     def __str__(self):
-        return "B(%s, %s, %s)" % (self.id, self.type, self.routeToString())
+        return "B(%s, %s, %s, %d)" % (self.id, self.type, self.routeToString(), self.deadline)
     
+    def isForStationIx(self, ix):
+        mask = 1 << ix
+        return bool(mask & self.route & (~self.pickedMask))
+
+    def isForStationS(self, station):
+        ix = self.stationToIx(station)
+        return self.isForStationIx(ix)
+
     def ixToStation(self, ix):
         if ix == 0:
             return 'A'
@@ -19,6 +27,15 @@ class Box(object):
             return 'C'
         else:
             return str(ix- 1) 
+
+    def stationToIx(self, station):
+        if station == 'A':
+            return 0
+        elif station == 'C':
+            return 1
+        else:
+            return int(station) + 1
+
 
     def routeToString(self):
         res = '['
@@ -55,8 +72,17 @@ class colors:
 
 def testBox():
     b = Box(1, "L", 0xAA, 1234)
-    b.pickedMask = 0XA3
+    b.pickedMask = 0XA2
     print(b)
 
+    print(b.stationToIx('A'))
+    print(b.stationToIx('C'))
+    print(b.stationToIx('1'))
+    print(b.stationToIx('6'))
+
+    print(b.isForStationS('A'))
+    print(b.isForStationS('C'))
+    print(b.isForStationS('2'))
+ 
 if __name__ == '__main__':
     testBox()
