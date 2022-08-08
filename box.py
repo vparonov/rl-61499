@@ -1,5 +1,4 @@
-from ast import Str
-
+import random
 
 class Box(object):
     def __init__(self, id, type, route, deadline):
@@ -11,7 +10,14 @@ class Box(object):
 
     def __str__(self):
         return "B(%s, %s, %s, %d)" % (self.id, self.type, self.routeToString(), self.deadline)
-    
+
+    @staticmethod
+    def random():
+        return Box(random.randint(0, 1000), 
+            random.choice(['S','L']), 
+            random.randint(1, 255), 
+            random.randint(1000, 2000))
+
     def isForStationIx(self, ix):
         mask = 1 << ix
         return bool(mask & self.route & (~self.pickedMask))
@@ -71,7 +77,7 @@ class colors:
     UNDERLINE = '\033[4m'
 
 def testBox():
-    b = Box(1, "L", 0xAA, 1234)
+    b = Box.random()
     b.pickedMask = 0XA2
     print(b)
 
