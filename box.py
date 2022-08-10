@@ -7,9 +7,13 @@ class Box(object):
         self.route = route
         self.pickedMask = 0  
         self.deadline = deadline
+        self.finishTime = -1 
 
     def __str__(self):
-        return "B(%s, %s, %s, %d)" % (self.id, self.type, self.routeToString(), self.deadline)
+        if self.finishTime >= 0:
+            return "B(%s, %s, %s, %d, %d)" % (self.id, self.type, self.routeToString(), self.deadline, self.finishTime)
+        else:
+            return "B(%s, %s, %s, %d)" % (self.id, self.type, self.routeToString(), self.deadline)
 
     @staticmethod
     def random():
@@ -41,6 +45,8 @@ class Box(object):
             return 'C'
         else:
             return str(ix- 1) 
+    def setFinishTime(self, ctime):
+        self.finishTime = ctime 
 
     def stationToIx(self, station):
         if station == 'A':
@@ -100,9 +106,9 @@ def testBox():
 
     for ix in range(8):
         b.pickAtIx(ix)
-
-    print(b)
+    b.setFinishTime(5555)
     print('Is picking finished? ', b.pickingFinished())
+    print(b)
 
 if __name__ == '__main__':
     testBox()

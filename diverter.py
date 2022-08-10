@@ -18,7 +18,7 @@ class Diverter(Component):
 
     def receive(self, msg):
         if self.predicate(msg):
-            print('%s divert to %s' % (self.name, self.divert.name))
+            #print('%s divert to %s' % (self.name, self.divert.name))
             return self.divert.receive(msg)
         else:
             return self.straight.receive(msg)

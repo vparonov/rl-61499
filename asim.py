@@ -20,9 +20,10 @@ def genNitems(n):
 
     return g 
 
-def markAsPicked(station):
+def markAsPicked(stations):
     def g(w, ctime):
-        w.pickAtS(station) 
+        for station in stations:
+            w.pickAtS(station) 
     return g 
 
 def main():
@@ -40,19 +41,19 @@ def test():
     ds01 = Diverter('ds01','ds01')
     sink = Sink('sink','sink')
     probe = Probe('all picked probe','', 
-        checkerPredicate = lambda workload: workload['AFP01'] != 1 and workload['S01'] != 1)
+        checkerPredicate = lambda workload: workload.pickingFinished())
 
     aframe = PickingAgent('aframe', 'aframe',  destination=c2, delay=4, 
         stopConveyor=True, 
-        markWorkload= markAsPicked('AFP01'), 
-        predicate = lambda load: load['AFP01'] == 1)
+        markWorkload= markAsPicked(['A']), 
+        predicate = lambda load: load.isForStationS('A'))
 
     s01Picker = PickingAgent(
         's01Picker',
         's01Picker', 
         destination=c2, 
-        delay=4,
-        markWorkload= markAsPicked('S01'), 
+        delay=2,
+        markWorkload= markAsPicked(['C', '1', '2', '3', '4', '5', '6']), 
         stopConveyor=False)
 
     source.connect(c1)
@@ -64,7 +65,14 @@ def test():
     ds01.connect(
         straightConnection= c3, 
         divertConnection= s01, 
-        divertPredicate= lambda load: load['S01'] == 1)
+        divertPredicate= lambda load: 
+            load.isForStationS('C') or
+            load.isForStationS('1') or
+            load.isForStationS('2') or
+            load.isForStationS('3') or
+            load.isForStationS('4') or
+            load.isForStationS('5') or
+            load.isForStationS('6'))
     
     s01.add_agent(s01Picker)
 
@@ -75,7 +83,8 @@ def test():
     t = 1 
     while True:
         source.tick(t)
-        source.print()
+        if t % 1000 == 0:
+            source.print()
         t += 1
         if sink.countReceived == nitems:
             break 

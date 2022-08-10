@@ -7,10 +7,10 @@ class Sink(Component):
         self.ctime = 0 
         self.received = []
 
-    def receive(self, msg):
+    def receive(self, workload):
         self.countReceived += 1
-        msg['ft'] = self.ctime 
-        self.received.append(msg)   
+        workload.setFinishTime(self.ctime) 
+        self.received.append(workload)   
 
     def putItem(self, item):
         self.receive(item)
@@ -23,4 +23,13 @@ class Sink(Component):
 
     def printAll(self):
         self.printState()
-        print('%s -> %s' % (self.name, self.received))
+        print('%s -> [' % (self.name), end = '')
+        for ix in range(0, len(self.received)): 
+            delim = ','
+            if ix == len(self.received) - 1:
+                delim = ']'    
+            if self.received[ix] is not None:
+                print(self.received[ix], end = delim)
+            else:
+                print('()', end = delim)
+        print('')
