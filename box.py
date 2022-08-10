@@ -26,6 +26,12 @@ class Box(object):
         ix = self.stationToIx(station)
         return self.isForStationIx(ix)
 
+    def pickAtIx(self, ix):
+        self.pickedMask |= 1 << ix
+
+    def pickAtS(self, s):   
+        return self.pickAtIx(self.stationToIx(s))
+
     def ixToStation(self, ix):
         if ix == 0:
             return 'A'
@@ -78,7 +84,6 @@ class colors:
 
 def testBox():
     b = Box.random()
-    b.pickedMask = 0XA2
     print(b)
 
     print(b.stationToIx('A'))
@@ -89,6 +94,11 @@ def testBox():
     print(b.isForStationS('A'))
     print(b.isForStationS('C'))
     print(b.isForStationS('2'))
- 
+
+    for ix in range(4):
+        b.pickAtIx(ix)
+        
+    print(b)
+
 if __name__ == '__main__':
     testBox()
