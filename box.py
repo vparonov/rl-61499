@@ -32,6 +32,8 @@ class Box(object):
     def pickAtS(self, s):   
         return self.pickAtIx(self.stationToIx(s))
 
+    def pickingFinished(self):
+        return self.route & self.pickedMask == self.route
     def ixToStation(self, ix):
         if ix == 0:
             return 'A'
@@ -85,6 +87,7 @@ class colors:
 def testBox():
     b = Box.random()
     print(b)
+    print('Is picking finished? ', b.pickingFinished())
 
     print(b.stationToIx('A'))
     print(b.stationToIx('C'))
@@ -95,10 +98,11 @@ def testBox():
     print(b.isForStationS('C'))
     print(b.isForStationS('2'))
 
-    for ix in range(4):
+    for ix in range(8):
         b.pickAtIx(ix)
-        
+
     print(b)
+    print('Is picking finished? ', b.pickingFinished())
 
 if __name__ == '__main__':
     testBox()

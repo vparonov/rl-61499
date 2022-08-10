@@ -8,14 +8,13 @@ from sink import Sink
 from conveyor import Conveyor
 from pickingagent import PickingAgent
 from probe import Probe
+from box import Box
 
 
 def genNitems(n):
     def g(ctime):
         if ctime <= n:
-            f1 = 1 # random.choice([0,1])
-            f2 = 1 # random.choice([0,1])
-            return {'idx': ctime, 'AFP01': f1, 'S01':f2 } 
+            return Box.random()
         else:
             return None 
 
@@ -23,7 +22,7 @@ def genNitems(n):
 
 def markAsPicked(station):
     def g(w, ctime):
-        w[station] = 2 
+        w.pickAtS(station) 
     return g 
 
 def main():
