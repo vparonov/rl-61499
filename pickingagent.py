@@ -5,7 +5,8 @@ from agent import Agent
 class PickingAgent(Agent):
     def __init__(self, name, description=None, predicate = None, delay=1, 
             destination=None, stopConveyor= False, 
-            markWorkload = None, verbose = False) :
+            markWorkload = None, verbose = False, 
+            maxBlockedTime = 0) :
         super().__init__(name, description)
         self.delay = delay  
         self.destination = destination
@@ -15,6 +16,8 @@ class PickingAgent(Agent):
         self.stopConveyor = stopConveyor
         self.markWorkload = markWorkload
         self.verbose = verbose
+        self.maxBlockedTime = maxBlockedTime
+        self.currentBlockedTime = 0
 
     def act(self, component, ctime):
         if self.workload is not None :
@@ -29,11 +32,15 @@ class PickingAgent(Agent):
                         print('%d agent %s is ready with workload = %s' % (ctime, self.name, self.workload))
                     self.markWorkload(self.workload, ctime)
                     self.workload = None
+                    self.currentBlockedTime = 0 
                     if self.stopConveyor == True:
                         component.start() 
                 else:
                     if self.verbose:
                         print('%d agent %s the destination %s is full! the agent will wait' % (ctime, self.name, self.destination.name))
+                    self.currentBlockedTime += 1
+                    if self.maxBlockedTime > 0 and self.currentBlockedTime > self.maxBlockedTime:
+                        raise Exception('(%d) Agent %s is blocked for more than %s scheduling time' % (ctime, self.name, self.maxBlockedTime))
                     return 
   
         self.workload = component.getItem()
@@ -57,3 +64,9 @@ class PickingAgent(Agent):
             print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
         self.counter = self.delay
 
+    def printState(self):
+        print('agent: %s is %s current blocked time = %d max blocked time = %d' % 
+            (self.name, 
+            'free' if self.workload is None else 'picking', 
+            self.currentBlockedTime, 
+            self.maxBlockedTime))    

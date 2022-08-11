@@ -74,3 +74,6 @@ class Conveyor(Component):
             else:
                 print('()', end = delim)
         print('')
+        for agent in self.agents:
+            agent.printState()
+      
