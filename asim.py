@@ -48,6 +48,7 @@ def test():
         markWorkload= markAsPicked(['A']), 
         predicate = lambda load: load.isForStationS('A'))
 
+    
     #s01Pickers = []
     ns01Pickers = 5
     for i in range(ns01Pickers):

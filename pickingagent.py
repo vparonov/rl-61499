@@ -40,7 +40,7 @@ class PickingAgent(Agent):
                         print('%d agent %s the destination %s is full! the agent will wait' % (ctime, self.name, self.destination.name))
                     self.currentBlockedTime += 1
                     if self.maxBlockedTime > 0 and self.currentBlockedTime > self.maxBlockedTime:
-                        raise Exception('(%d) Agent %s is blocked for more than %s scheduling time' % (ctime, self.name, self.maxBlockedTime))
+                        raise Exception('(%d) Agent %s is blocked for more than %s time steps' % (ctime, self.name, self.maxBlockedTime))
                     return 
   
         self.workload = component.getItem()
