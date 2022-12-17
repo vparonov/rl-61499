@@ -29,58 +29,56 @@ def main():
 def test():
     nitems = 500
 
-    source = Source('source','warehouse', rate=1, generator = genNitems(nitems))
-    c1 = Conveyor('c1','c1', delay = 1, capacity =1)
-    c2 = Conveyor('c2','c2', delay = 1, capacity =5)
-    c3 = Conveyor('c3','c3', delay = 1, capacity =5)
-    s01 = Conveyor('s01','s01', delay = 1, capacity = 5)
+    source = Source('source','warehouse', delay=100, generator = genNitems(nitems))
+    c1 = Conveyor('c1','c1', delay = 1, capacity =10)
+    c2 = Conveyor('c2','c2', delay = 1, capacity =10)
+    c3 = Conveyor('c3','c3', delay = 1, capacity =10)
+    s01 = Conveyor('s01','s01', delay = 1, capacity = 10)
+    s02 = Conveyor('s02','s02', delay = 1, capacity = 10)
     ds01 = Diverter('ds01','ds01')
+    ds02 = Diverter('ds02','ds02')
+
     sink = Sink('sink','sink')
     probe = Probe('all picked probe','', 
         checkerPredicate = lambda workload: workload.pickingFinished())
 
-    aframe = PickingAgent('aframe', 'aframe',  destination=c2, delay=4, 
-        stopConveyor=True, 
-        markWorkload= markAsPicked(['A']), 
-        predicate = lambda load: load.isForStationS('A'))
-
-    
-    #s01Pickers = []
-    ns01Pickers = 5
+    ns01Pickers = 20
     for i in range(ns01Pickers):
-        s01Picker = PickingAgent(
+        s01.add_agent(PickingAgent(
             's01-%2.2dPicker'%(i+1),
             's01-%2.2dPicker'%(i+1), 
             destination=c2, 
             delay=10,
-            markWorkload= markAsPicked(['C', '1', '2', '3', '4', '5', '6']), 
+            markWorkload= markAsPicked(['1']), 
             stopConveyor=False, 
-            maxBlockedTime= 200)
-        s01.add_agent(s01Picker)
+            maxBlockedTime= 200))
 
-    source.connect(c1)
-    
-    c1.connect(c2)
-    c1.add_agent(aframe)
-
-    c2.connect(ds01)
-    ds01.connect(
-        straightConnection= c3, 
-        divertConnection= s01, 
-        divertPredicate= lambda load: 
-            load.isForStationS('C') or
-            load.isForStationS('1') or
-            load.isForStationS('2') or
-            load.isForStationS('3') or
-            load.isForStationS('4') or
-            load.isForStationS('5') or
-            load.isForStationS('6'))
-    
-
-    c3.connect(probe)
-
-    probe.connect(sink)
-    #for t in range(1,50):
+    ns02Pickers = 20
+    for i in range(ns02Pickers):
+        s02.add_agent(PickingAgent(
+            's02-%2.2dPicker'%(i+1),
+            's02-%2.2dPicker'%(i+1), 
+            destination=c2, 
+            delay=10,
+            markWorkload= markAsPicked(['2']), 
+            stopConveyor=False, 
+            maxBlockedTime= 200))
+   
+    source.\
+        connect(c1).\
+        connect(c2).\
+        connect(ds01).\
+        connect(
+            straightConnection= ds02, 
+            divertConnection= s01, 
+            divertPredicate= lambda load: load.isForStationS('A')).\
+        connect(
+            straightConnection=c3,
+            divertConnection=s02,
+            divertPredicate= lambda load: load.isForStationS('C')).\
+        connect(probe).\
+        connect(sink)
+ 
     t = 1 
     gotError = False
     while True:

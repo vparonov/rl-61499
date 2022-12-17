@@ -1,6 +1,9 @@
 import random
 
 class Box(object):
+    max_box_id = 0 
+    max_stations = 2 
+
     def __init__(self, id, type, route, deadline):
         self.id = id
         self.type = type
@@ -17,9 +20,10 @@ class Box(object):
 
     @staticmethod
     def random():
-        return Box(random.randint(0, 1000), 
+        Box.max_box_id += 1 
+        return Box(Box.max_box_id, 
             random.choice(['S','L']), 
-            random.randint(1, 255), 
+            random.randint(1, 2 ** Box.max_stations - 1), 
             random.randint(1000, 2000))
 
     def isForStationIx(self, ix):

@@ -10,6 +10,7 @@ class Component(object):
 
     def connect(self, next):
         self.add_child(next)
+        return next 
 
     def add_agent(self, agent):
         self.agents.append(agent)

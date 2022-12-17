@@ -64,7 +64,12 @@ class Conveyor(Component):
         return True 
 
     def printState(self):
-        print('%s(%d) -> [' % (self.name, self.on), end = '')
+        countBoxes = 0 
+        for ix in range(0, self.capacity):
+            if self.buffer[ix] is not None:
+                countBoxes += 1
+       
+        print('%s(%s, %d) -> [' % (self.name, 'on' if self.on else 'off', countBoxes), end = '')
         for ix in range(0, self.capacity): 
             delim = ','
             if ix == self.capacity - 1:

@@ -14,7 +14,8 @@ class Diverter(Component):
         self.add_child(straightConnection)
         self.add_child(divertConnection)
 
-        self.predicate = divertPredicate    
+        self.predicate = divertPredicate  
+        return straightConnection
 
     def receive(self, msg):
         if self.predicate(msg):
