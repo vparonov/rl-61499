@@ -1,7 +1,3 @@
-from cmath import e, sin
-from os import pread
-from tracemalloc import stop
-import random
 from diverter import Diverter
 from source import Source
 from sink import Sink
