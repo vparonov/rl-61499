@@ -55,7 +55,7 @@ class Conveyor(Component):
                     self.buffer[self.capacity-1] = None 
 
 
-        for i in range(self.capacity-1, 0):
+        for i in range(self.capacity-1, 0, -1):
             if self.buffer[i] == None:
                 self.buffer[i] = self.buffer[i-1]
                 self.buffer[i-1] = None
@@ -83,3 +83,48 @@ class Conveyor(Component):
     
     def setActiveChildID(self, id):
         self.activeChildID = id 
+
+
+if __name__ == '__main__':
+    from source import Source 
+    from sink import Sink
+    from box import Box
+
+    def genNitems(n):
+        def g(ctime):
+            if ctime <= n:
+                return Box.random()
+            else:
+                return None 
+
+        return g 
+
+    def test1():
+        nitems = 2
+        source = Source('source','warehouse', delay=1, generator = genNitems(nitems))
+
+        c1 = Conveyor("c1", capacity=30) 
+
+        source.connect(c1) 
+
+        for i in range(40):
+            source.tick(i)
+            source.print()
+
+    def test2():
+        nitems = 2
+        source = Source('source','warehouse', delay=1, generator = genNitems(nitems))
+        sink = Sink('sink') 
+        c1 = Conveyor('c1', capacity=30) 
+
+        source.\
+            connect(c1).\
+            connect(sink)
+
+        for i in range(40):
+            source.tick(i)
+            source.print()
+
+    # test1()
+    test2()
+    

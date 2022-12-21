@@ -24,8 +24,8 @@ def markAsPicked(stations):
 
 def main():
     print('------------------')
-    simple_test()
-    #test()
+    #simple_test()
+    test()
 
 
 def simple_test():
@@ -53,8 +53,8 @@ def simple_test():
             print(e)
             source.print()
             break
-        #if t % 1000 == 0:
-        source.print()
+        if t % 1000 == 0:
+            source.print()
         t += 1
         #if t == 40:
         #    break  
@@ -68,22 +68,22 @@ def simple_test():
 
 
 def test():
-    nitems = 2
+    nitems = 200
 
-    source = Source('source','warehouse', delay=100, generator = genNitems(nitems))
-    c11 = Conveyor('c1.1','c1.1', delay = 1, capacity =2)
-    c12 = Conveyor('c1.2','c1.2', delay = 1, capacity =3)
-    c13 = Conveyor('c1.3','c1.3', delay = 1, capacity =5)
-    c2 = Conveyor('c2','c2', delay = 1, capacity =10)
-    c3 = Conveyor('c3','c3', delay = 1, capacity =2)
-    s01 = Conveyor('s01','s01', delay = 1, capacity = 10)
-    s02 = Conveyor('s02','s02', delay = 1, capacity = 10)
-    ds01 = Diverter('ds01','ds01')
-    ds02 = Diverter('ds02','ds02')
+    source = Source('source','warehouse', delay=1, generator = genNitems(nitems))
+    c11 = Conveyor('c1.1', delay = 1, capacity =2)
+    c12 = Conveyor('c1.2', delay = 1, capacity =3)
+    c13 = Conveyor('c1.3', delay = 1, capacity =5)
+    c2 = Conveyor('c2', delay = 1, capacity =10)
+    c3 = Conveyor('c3', delay = 1, capacity =2)
+    s01 = Conveyor('s01', delay = 1, capacity = 10)
+    s02 = Conveyor('s02', delay = 1, capacity = 10)
+    ds01 = Diverter('ds01',divertPredicate= lambda load: load.isForStationS('A'))
+    ds02 = Diverter('ds02',divertPredicate= lambda load: load.isForStationS('C'))
 
     sink = Sink('sink','sink')
-    probe = Probe('all picked probe','', 
-        checkerPredicate = lambda workload: workload.pickingFinished())
+    probe = Probe('all picked probe','',
+        checkerPredicate = lambda load: load.pickingFinished())
 
     ns01Pickers = 1
     for i in range(ns01Pickers):
@@ -92,7 +92,7 @@ def test():
             's01-%2.2dPicker'%(i+1), 
             destination=c2, 
             delay=10,
-            markWorkload= markAsPicked(['1']), 
+            markWorkload= markAsPicked(['A']), 
             stopConveyor=False, 
             maxBlockedTime= 200))
 
@@ -103,7 +103,7 @@ def test():
             's02-%2.2dPicker'%(i+1), 
             destination=c2, 
             delay=10,
-            markWorkload= markAsPicked(['2']), 
+            markWorkload= markAsPicked(['C']), 
             stopConveyor=False, 
             maxBlockedTime= 200))
    
@@ -115,12 +115,10 @@ def test():
         connect(ds01).\
         connect(
             straightConnection= ds02, 
-            divertConnection= s01, 
-            divertPredicate= lambda load: load.isForStationS('A')).\
+            divertConnection= s01).\
         connect(
             straightConnection=c3,
-            divertConnection=s02,
-            divertPredicate= lambda load: load.isForStationS('C')).\
+            divertConnection=s02).\
         connect(probe).\
         connect(sink)
  
