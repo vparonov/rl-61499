@@ -44,22 +44,22 @@ class Conveyor(Component):
         if self.on == False:
             return False  
 
-        if ctime % self.delay == 0:
-            if len(self.children) > 0:
-                outputMsg = self.buffer[self.capacity-1]
-                if outputMsg is not None:
-                    next = self.children[self.activeChildID] 
-                    if next.receive(outputMsg) == False:
-                        return False    
-            else:
-                #move all boxes one position to the right (i.e. towards the end of the conveyer)
-                for i in range(self.capacity-1, 0):
-                    if self.buffer[i] == None:
-                        self.buffer[i] = self.buffer[i-1]
-                        self.buffer[i-1] = None
+        if ctime % self.delay != 0:
+            return False 
 
-            self.buffer.insert(0,self.buffer.pop())
-            self.buffer[0] = None 
+        if len(self.children) > 0:
+            outputMsg = self.buffer[self.capacity-1]
+            if outputMsg is not None:
+                next = self.children[self.activeChildID] 
+                if next.receive(outputMsg):
+                    self.buffer[self.capacity-1] = None 
+
+
+        for i in range(self.capacity-1, 0):
+            if self.buffer[i] == None:
+                self.buffer[i] = self.buffer[i-1]
+                self.buffer[i-1] = None
+
         return True 
 
     def printState(self):

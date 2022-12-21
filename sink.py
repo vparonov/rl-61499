@@ -10,7 +10,8 @@ class Sink(Component):
     def receive(self, workload):
         self.countReceived += 1
         workload.setFinishTime(self.ctime) 
-        self.received.append(workload)   
+        self.received.append(workload)  
+        return True  
 
     def putItem(self, item):
         self.receive(item)
