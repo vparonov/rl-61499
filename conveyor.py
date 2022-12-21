@@ -6,6 +6,7 @@ class Conveyor(Component):
         self.capacity = capacity
         self.on = True 
         self.buffer = [None] * self.capacity
+        self.activeChildID = 0  
 
     def receive(self, msg):
         if self.on == False:
@@ -23,11 +24,6 @@ class Conveyor(Component):
     def stop(self):
         self.on = False
         
-    def add_child(self, child):
-        if len(self.children) > 0:
-            raise Exception('%s. The conveyeror can have only one child.' % self.name)
-        return super().add_child(child) 
-
     # gets an item from the conveyeror and returns the item
     def getItem(self):
         for ix in range(self.capacity-1, -1, -1):
@@ -49,15 +45,18 @@ class Conveyor(Component):
             return False  
 
         if ctime % self.delay == 0:
-            outputMsg = self.buffer[self.capacity-1]
-            if outputMsg is not None:
-                if len(self.children) == 0:
-                    self.stop()
-                    return False 
-
-                next = self.children[0] # the conveyeror must have only one child
-                if next.receive(outputMsg) == False:
-                    return False    
+            if len(self.children) > 0:
+                outputMsg = self.buffer[self.capacity-1]
+                if outputMsg is not None:
+                    next = self.children[self.activeChildID] 
+                    if next.receive(outputMsg) == False:
+                        return False    
+            else:
+                #move all boxes one position to the right (i.e. towards the end of the conveyer)
+                for i in range(self.capacity-1, 0):
+                    if self.buffer[i] == None:
+                        self.buffer[i] = self.buffer[i-1]
+                        self.buffer[i-1] = None
 
             self.buffer.insert(0,self.buffer.pop())
             self.buffer[0] = None 
@@ -81,4 +80,6 @@ class Conveyor(Component):
         print('')
         for agent in self.agents:
             agent.printState()
-      
+    
+    def setActiveChildID(self, id):
+        self.activeChildID = id 
