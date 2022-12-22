@@ -10,14 +10,12 @@ class PickingAgent(Agent):
         super().__init__(name, description)
         self.delay = delay  
         self.destination = destination
-        self.workload = None
-        self.counter = 0 
         self.predicate = predicate
         self.stopConveyor = stopConveyor
         self.markWorkload = markWorkload
         self.verbose = verbose
         self.maxBlockedTime = maxBlockedTime
-        self.currentBlockedTime = 0
+        self.reset()
 
     def act(self, component, ctime):
         if self.workload is not None :
@@ -70,3 +68,8 @@ class PickingAgent(Agent):
             'free' if self.workload is None else 'picking', 
             self.currentBlockedTime, 
             self.maxBlockedTime))    
+    
+    def reset(self):
+        self.workload = None
+        self.counter = 0 
+        self.currentBlockedTime = 0

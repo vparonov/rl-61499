@@ -5,3 +5,6 @@ class Agent(object):
  
     def act(self, component, ctime):
         raise NotImplementedError
+
+    def reset(self):
+        raise NotImplementedError

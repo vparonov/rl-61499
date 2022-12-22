@@ -4,9 +4,7 @@ class Conveyor(Component):
         super().__init__(name, description)
         self.delay = delay
         self.capacity = capacity
-        self.on = True 
-        self.buffer = [None] * self.capacity
-        self.activeChildID = 0  
+        self.resetState()
 
     def receive(self, msg):
         if self.on == False:
@@ -81,6 +79,11 @@ class Conveyor(Component):
         for agent in self.agents:
             agent.printState()
     
+    def resetState(self):
+        self.on = True 
+        self.buffer = [None] * self.capacity
+        self.activeChildID = 0  
+
     def setActiveChildID(self, id):
         self.activeChildID = id 
 

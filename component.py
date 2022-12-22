@@ -20,6 +20,14 @@ class Component(object):
         for child in self.children:
             child.print()
 
+    def reset(self):
+        self.resetState()
+        for child in self.children:
+            child.reset()
+
+        for agent in self.agents:  
+            agent.reset()    
+
     def receive(self, msg):
         raise NotImplementedError
 
@@ -33,6 +41,9 @@ class Component(object):
         raise NotImplementedError
 
     def printState(self):
+        raise NotImplementedError
+
+    def resetState(self):
         raise NotImplementedError
 
     def getItem(self):

@@ -5,9 +5,9 @@ from conveyor import Conveyor
 from diverter import Diverter
 
 class Warehouse:
-    def __init__(self, name, fileName, strategy):
+    def __init__(self, name, fileName):
         self.name = name
-        self.source = Source(name + '.source', '', 1, lambda ctime : strategy(ctime, self.itemsToPick)) 
+        self.source = Source(name + '.source', '', 1, None) 
         self.components = {'__sink__': Sink(name + '.sink', '')}
         self.firstComponent = None
         self.build(fileName)
@@ -42,8 +42,11 @@ class Warehouse:
                 elif state == 3:
                     self.addAgent(s)
   
-    def run(self, maxTicks, itemsToPick, printEvery=1):
+    def run(self, maxTicks, itemsToPick, strategy, printEvery=1):
         self.itemsToPick = itemsToPick 
+        self.source.reset()
+        self.source.generator = lambda ctime : strategy(ctime, self.itemsToPick)
+
         nitems = len(itemsToPick)
         t = 1 
         gotError = False
@@ -51,24 +54,30 @@ class Warehouse:
             try:
                 self.source.tick(t)
             except Exception as e:
-                gotError = True  
-                print(e)
-                self.source.print()
+                gotError = True
+                if printEvery > 0:  
+                    print(e)
+                    self.source.print()
                 break
-            if t % printEvery == 0:
+            if printEvery > 0 and t % printEvery == 0:
                 self.source.print()
-            #source.print()
             t += 1
             if self.components['__sink__'].countReceived == nitems:
                 break 
             if maxTicks >= 0 and t == maxTicks:
                 break 
-
+        
+        retVal = True 
         if not gotError:
-            print('Done after %d ticks' % t)
-            #sink.printAll()
+            if printEvery > 0:
+                print('Done after %d ticks' % t)
+                self.components['__sink__'].printAll()
         else:
-            print('Failed at tick %d ' % t)
+            retVal = False
+            if printEvery > 0:
+                print('Failed at tick %d ' % t)
+
+        return retVal, t
 
     def addStructure(self, s):
         if s[0] == 'c' or s[0] == 's':
@@ -125,14 +134,17 @@ class Warehouse:
                 maxBlockedTime = int(maxBlockedTime))
             station.add_agent(agent)
 
+    def printStructure(self):
+        c = self.source
+        while True:
+            if len(c.children) == 1:
+                print(c.name)
+                c = c.children[0]
+            elif len(c.children) == 2:
+                print(c.name, c.children[1].name)
+                c = c.children[0]
+            else:
+                print(c.name)
+                break
+            
 
-
-if __name__ == '__main__':
-    from box import Box 
-
-    nitems = 200
-    items = [Box.random() for i in range(nitems)]
-   
-    w = Warehouse('test', 'files/wh1.txt', strategy= lambda ctime, items: items[ctime] if ctime < len(items) else None )
-    
-    w.run(-1, items)

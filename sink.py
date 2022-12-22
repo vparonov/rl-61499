@@ -3,15 +3,13 @@ from component import Component
 class Sink(Component):
     def __init__(self, name, description=None):
         super().__init__(name, description)
-        self.countReceived = 0
-        self.ctime = 0 
-        self.received = []
+        self.resetState()
 
     def receive(self, workload):
         self.countReceived += 1
         workload.setFinishTime(self.ctime) 
         self.received.append(workload)  
-        return True  
+        return True 
 
     def putItem(self, item):
         self.receive(item)
@@ -22,6 +20,11 @@ class Sink(Component):
     def printState(self):
         print('%s -> count=%d' % (self.name, self.countReceived))
 
+    def resetState(self):
+        self.countReceived = 0
+        self.ctime = 0 
+        self.received = []
+        
     def printAll(self):
         self.printState()
         print('%s -> [' % (self.name), end = '')
