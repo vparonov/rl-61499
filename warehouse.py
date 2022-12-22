@@ -5,9 +5,9 @@ from conveyor import Conveyor
 from diverter import Diverter
 
 class Warehouse:
-    def __init__(self, name, fileName, generator):
+    def __init__(self, name, fileName, strategy):
         self.name = name
-        self.source = Source(name + '.source', '', 1, generator)
+        self.source = Source(name + '.source', '', 1, lambda ctime : strategy(ctime, self.itemsToPick)) 
         self.components = {'__sink__': Sink(name + '.sink', '')}
         self.firstComponent = None
         self.build(fileName)
@@ -42,7 +42,9 @@ class Warehouse:
                 elif state == 3:
                     self.addAgent(s)
   
-    def run(self, maxTicks, printEvery=1):
+    def run(self, maxTicks, itemsToPick, printEvery=1):
+        self.itemsToPick = itemsToPick 
+        nitems = len(itemsToPick)
         t = 1 
         gotError = False
         while True:
@@ -57,7 +59,9 @@ class Warehouse:
                 self.source.print()
             #source.print()
             t += 1
-            if t == maxTicks:
+            if self.components['__sink__'].countReceived == nitems:
+                break 
+            if maxTicks >= 0 and t == maxTicks:
                 break 
 
         if not gotError:
@@ -68,10 +72,10 @@ class Warehouse:
 
     def addStructure(self, s):
         if s[0] == 'c' or s[0] == 's':
-            name, p1, p2 = s.split(',')
+            name, p1, p2 = [_s.strip() for _s in s.split(',')]
             item = Conveyor(name, '', delay=int(p1), capacity=int(p2))
         elif s[0] == 'd':
-            name, p1 = s.split(',')
+            name, p1 = [_s.strip() for _s in s.split(',')]
             item = Diverter(name, divertPredicate=lambda load: load.isForStationS(p1))
         else:
             raise Exception('Unknow component type %s' % name)
@@ -92,7 +96,7 @@ class Warehouse:
                     divertConnection= d)
             else:
                 c = self.components[c_name]
-                print(f'conv {c_name}')
+                c.connect(next)
             next = c
 
         self.source.connect(next) 
@@ -127,14 +131,8 @@ if __name__ == '__main__':
     from box import Box 
 
     nitems = 200
-    def genNitems(n):
-        def g(ctime):
-            if ctime <= n:
-                return Box.random()
-            else:
-                return None 
-
-        return g 
-    w = Warehouse('test', 'files/wh1.txt', generator = genNitems(nitems))
+    items = [Box.random() for i in range(nitems)]
+   
+    w = Warehouse('test', 'files/wh1.txt', strategy= lambda ctime, items: items[ctime] if ctime < len(items) else None )
     
-    w.run(200, 20)
+    w.run(-1, items)
