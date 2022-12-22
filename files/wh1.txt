@@ -1,0 +1,27 @@
+# warehouse elements
+#cxx = conveyor, sxx = station conveyor, d = diverter
+# id, delay, capacity
+begin structure 
+    c11, 1, 2 
+    c12, 1, 3
+    c13, 1, 5
+    c2, 1, 10
+    c3, 1, 2
+    s1, 1, 10
+    s2, 2, 10
+    d1, A
+    d2, C
+end structure 
+# element connections
+# x -> y == the end of x is connected to the beginning of y
+# x(xx)->y == the straight connection of x is connected to y and diverted connection is connected to xx
+begin connections
+    c11->c12->c13->c2->d1!s1->d2!s2->c3
+end connections
+# agents 
+# a = picking agent, 
+# id, count, markStation, delay, maxBlockedTime, stationName, returnConvName
+begin agents 
+    a, 10, A, 10, 200, s1, c2
+    c, 10, C, 10, 200, s2, c2
+end agents 
