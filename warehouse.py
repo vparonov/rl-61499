@@ -42,6 +42,30 @@ class Warehouse:
                 elif state == 3:
                     self.addAgent(s)
   
+    def run(self, maxTicks, printEvery=1):
+        t = 1 
+        gotError = False
+        while True:
+            try:
+                self.source.tick(t)
+            except Exception as e:
+                gotError = True  
+                print(e)
+                self.source.print()
+                break
+            if t % printEvery == 0:
+                self.source.print()
+            #source.print()
+            t += 1
+            if t == maxTicks:
+                break 
+
+        if not gotError:
+            print('Done after %d ticks' % t)
+            #sink.printAll()
+        else:
+            print('Failed at tick %d ' % t)
+
     def addStructure(self, s):
         if s[0] == 'c' or s[0] == 's':
             name, p1, p2 = s.split(',')
@@ -113,3 +137,4 @@ if __name__ == '__main__':
         return g 
     w = Warehouse('test', 'files/wh1.txt', generator = genNitems(nitems))
     
+    w.run(200, 20)

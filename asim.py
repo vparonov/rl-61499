@@ -43,7 +43,7 @@ def test():
     probe = Probe('all picked probe','',
         checkerPredicate = lambda load: load.pickingFinished())
 
-    ns01Pickers = 4
+    ns01Pickers = 3
     for i in range(ns01Pickers):
         s01.add_agent(PickingAgent(
             's01-%2.2dPicker'%(i+1),
