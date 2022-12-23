@@ -5,6 +5,14 @@ class Component(object):
         self.children = []
         self.agents = []
 
+    def tick(self, ctime):
+        for child in self.children:
+            child.tick(ctime)
+
+        for agent in self.agents:  
+            agent.act(self, ctime)
+        self.changeState(ctime)
+
     def add_child(self, child):
         self.children.append(child)
 
@@ -52,10 +60,4 @@ class Component(object):
     def putItem(self, item):
         raise NotImplementedError
 
-    def tick(self, ctime):
-        for child in self.children:
-            child.tick(ctime)
-
-        for agent in self.agents:  
-            agent.act(self, ctime)
-        self.changeState(ctime)
+    
