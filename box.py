@@ -20,11 +20,12 @@ class Box(object):
 
     @staticmethod
     def random():
-        Box.max_box_id += 1 
-        return Box(Box.max_box_id, 
+        b =  Box(Box.max_box_id, 
             random.choice(['S','L']), 
             random.randint(1, 2 ** Box.max_stations - 1), 
             random.randint(1000, 2000))
+        Box.max_box_id += 1 
+        return b 
 
     def isForStationIx(self, ix):
         mask = 1 << ix
