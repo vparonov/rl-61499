@@ -7,6 +7,7 @@ class Probe(Component):
 
     def connect(self, next):
         self.add_child(next)
+        return next 
 
     def receive(self, msg):
         if self.checkerPredicate(msg) == False :
@@ -18,4 +19,7 @@ class Probe(Component):
         return True 
 
     def printState(self):
+        pass
+
+    def resetState(self):
         pass

@@ -2,9 +2,8 @@ from collections import defaultdict
 
 class State:
     def __init__(self) -> None:
-        self.itemsState = defaultdict(lambda : '__buffer__')
-        self.componentsState= defaultdict(lambda : 0)
-
+        self.reset()
+        
     def update(self, itemID, componentID):
         prevComponentID = self.itemsState[itemID]
         self.componentsState[prevComponentID] -= 1
@@ -14,6 +13,10 @@ class State:
 
     def get(self):
         return self.itemsState, self.componentsState
+
+    def reset(self):
+        self.itemsState = defaultdict(lambda : '__buffer__')
+        self.componentsState= defaultdict(lambda : 0)
 
 
 #tests 

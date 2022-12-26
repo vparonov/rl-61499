@@ -1,16 +1,16 @@
 # warehouse elements
 #cxx = conveyor, sxx = station conveyor, d = diverter
-# id, delay, capacity
+# id, delay, capacity, probe
 begin structure 
-    c11, 10, 2 
-    c12, 10, 3
-    c13, 10, 5
-    c2, 10, 10
-    c3, 10, 2
-    s1, 10, 10
-    s2, 20, 10
-    d1, A
-    d2, C
+    c11, 10, 2, 0
+    c12, 10, 3, 0
+    c13, 10, 5, 1
+    c2, 10, 10, 1
+    c3, 10, 2,  1
+    s1, 10, 10, 1
+    s2, 20, 10, 1
+    d1, A, 0
+    d2, C, 0
 end structure 
 # element connections
 # x -> y == the end of x is connected to the beginning of y
@@ -22,6 +22,6 @@ end connections
 # a = picking agent, 
 # id, count, markStation, delay, maxBlockedTime, stationName, returnConvName
 begin agents 
-    a, 1, A, 20, 200, s1, c2
-    c, 1, C, 20, 200, s2, c2
+    a, 5, A, 20, 200, s1, c2
+    c, 5, C, 20, 200, s2, c2
 end agents 
