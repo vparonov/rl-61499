@@ -27,3 +27,6 @@ if __name__ == '__main__':
     s.update(1, 1)
     print(s.get())
 
+    itemsDict, componentsState = s.get()
+    print(itemsDict[0], itemsDict[3])
+
