@@ -4,7 +4,7 @@ from box import Box
 
 
 def policy(ctime, state):
-    if ctime % 50 == 0:
+    if ctime % 40 == 0:
         #print(ctime, 'fifo')
         return 'FIFO'
     else:
@@ -22,6 +22,9 @@ state, info = w.reset(items)
 for ctime in range(10000):
     action = policy(ctime, state)
     state, reward, terminated, truncated, info = w.step(action)
+
+    if ctime % 100 == 0:
+        print(reward, ctime, state.componentsState)
 
     if terminated:
         print(f'finished in {ctime} steps')

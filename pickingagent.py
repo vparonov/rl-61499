@@ -6,7 +6,8 @@ class PickingAgent(Agent):
     def __init__(self, name, description=None, predicate = None, delay=1, 
             destination=None, stopConveyor= False, 
             markWorkload = None, verbose = False, 
-            maxBlockedTime = 0) :
+            maxBlockedTime = 0, 
+            state = None) :
         super().__init__(name, description)
         self.delay = delay  
         self.destination = destination
@@ -15,6 +16,7 @@ class PickingAgent(Agent):
         self.markWorkload = markWorkload
         self.verbose = verbose
         self.maxBlockedTime = maxBlockedTime
+        self.state = state
         self.reset()
 
     def act(self, component, ctime):
@@ -29,6 +31,7 @@ class PickingAgent(Agent):
                     if self.verbose:
                         print('%d agent %s is ready with workload = %s' % (ctime, self.name, self.workload))
                     self.markWorkload(self.workload, ctime)
+                    self.state.update(self.workload.id, self.destination.name)
                     self.workload = None
                     self.currentBlockedTime = 0 
                     if self.stopConveyor == True:
@@ -42,7 +45,7 @@ class PickingAgent(Agent):
                     return 
   
         self.workload = component.getItem()
-
+     
         if self.workload is None:
             return
         # if the agent's predicate returns False the item is returned to the source component
@@ -57,7 +60,9 @@ class PickingAgent(Agent):
         else:
             # start the component in case if was full and stopped before the agent picked the item
             component.start()
-        
+
+        self.state.update(self.workload.id, self.name)
+   
         if self.verbose:
             print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
         self.counter = self.delay

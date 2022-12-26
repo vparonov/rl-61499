@@ -75,7 +75,7 @@ class Warehouse:
         try:
             self.source.tick(self.t)
             state = self.state 
-            self.source.print()
+            #self.source.print()
             if self.components['__sink__'].countReceived == self.nitems:
                 terminated = True
                 reward = 10  
@@ -168,7 +168,8 @@ class Warehouse:
                 delay = int(delay),
                 markWorkload = markAsPicked([markStation]), 
                 stopConveyor = False, 
-                maxBlockedTime = int(maxBlockedTime))
+                maxBlockedTime = int(maxBlockedTime), 
+                state = self.state)
             station.add_agent(agent)
 
     def printStructure(self):
