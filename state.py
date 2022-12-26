@@ -1,6 +1,8 @@
+from collections import defaultdict
+
 class State:
     def __init__(self, nitems, ncomponents) -> None:
-        self.itemsState = [-1] * nitems
+        self.itemsState = defaultdict(lambda : -1)
         self.componentsState = [0] * ncomponents
 
     def update(self, itemID, componentID):
