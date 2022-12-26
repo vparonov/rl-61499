@@ -11,6 +11,8 @@ class StateProbe(Probe):
     def __init__(self, name, description, state, componentID):
         Probe.__init__(self, name, description, checkerPredicate=genUpdateStateFunc(state, componentID))
 
+
+#tests 
 if __name__ == '__main__':
     from source import Source
     from sink import Sink
@@ -19,9 +21,9 @@ if __name__ == '__main__':
 
     source = Source('test', '', 1, lambda ctime : Box.random()) 
     sink = Sink('test') 
-    state = State(10, 3)
+    state = State()
 
-    stateProbe = StateProbe('p1', '', state, 0)
+    stateProbe = StateProbe('p1', '', state, 'sink')
 
     source.connect(stateProbe).connect(sink)
 
