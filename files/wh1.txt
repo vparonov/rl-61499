@@ -7,8 +7,8 @@ begin structure
     c3, 10, 2,  1
     s1, 10, 10, 1
     s2, 20, 10, 1
-    d1, A, 0
-    d2, C, 0
+    d1, A, 1
+    d2, C, 1
 end structure 
 # element connections
 # x -> y == the end of x is connected to the beginning of y

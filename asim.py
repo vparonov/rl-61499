@@ -68,7 +68,7 @@ def appendNPState(state, sorted_components, npstate):
     return np.vstack((npstate, tmp))
 
 
-def plot(title, npstate, sorted_components):
+def plot(title, npstate, sorted_components, max_plot_steps):
     cmap = plt.cm.jet  # define the colormap
     # extract all colors from the .jet map
     cmaplist = [cmap(i) for i in range(cmap.N)]
@@ -81,17 +81,17 @@ def plot(title, npstate, sorted_components):
 
     # define the bins and normalize
     bounds = np.linspace(0, 10, 11)
-    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     norm = colors.BoundaryNorm(bounds, cmap.N)
     fig, ax = plt.subplots(1,1)
-    img = ax.imshow(npstate[:,:-1], aspect= 'auto', cmap=cmap, norm=norm, interpolation='nearest')
+    img = ax.imshow(npstate[:max_plot_steps,:-1], aspect= 'auto', cmap=cmap, norm=norm, interpolation='nearest')
     ax.set_xticks(range(len(sorted_components)-1))
     ax.set_xticklabels(sorted_components[:-1])
     plt.xticks(rotation=90)
     plt.ylabel('time step')
     plt.xlabel('component')
     plt.title(title)
-    plt.colorbar(img, cmap=cmap, norm=norm, boundaries=bounds, ticks=bounds)
+    plt.colorbar(img, boundaries=bounds, ticks=bounds)
     plt.show()
 
 def resetItems(items):
@@ -108,6 +108,8 @@ sorted_components = w.getSortedComponents()
 bursts = [10, 11]
 waits  = [140]
 wb = 10
+
+max_plot_steps = 500
 
 for xx in range(1):
     for ww in waits:
@@ -127,15 +129,16 @@ for xx in range(1):
 
                 if terminated:
                     title = f'ok. burst size = {b} wait = {ww} finished after {ctime} steps, reward {reward}'
-                    plot(title, npstate, sorted_components)                    
+                    plot(title, npstate, sorted_components, max_plot_steps)                    
                     break
                 elif truncated:
+                    print(info)
                     title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps, reward {reward}'
-                    plot(title, npstate, sorted_components)
+                    plot(title, npstate, sorted_components, max_plot_steps)
                     break 
 
             if not terminated and not truncated:
                 title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps {info}'
-                plot(title, npstate, sorted_components)
+                plot(title, npstate, sorted_components, max_plot_steps)
             
 

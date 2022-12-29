@@ -121,11 +121,7 @@ class Warehouse:
                 name, dname = c_name.split('!')
                 c = self.components[name]
                 
-                sprobe = self.probes[name]
-                if sprobe != None:
-                    sprobe.connect(c)
-                    c = sprobe
-
+            
                 d = self.components[dname]
                 dprobe = self.probes[dname]
                 if dprobe != None:
@@ -134,6 +130,11 @@ class Warehouse:
 
                 c.connect(straightConnection= next, 
                     divertConnection= d)
+            
+                sprobe = self.probes[name]
+                if sprobe != None:
+                    sprobe.connect(c)
+                    c = sprobe
             else:
                 c = self.components[c_name]
                 c.connect(next)
