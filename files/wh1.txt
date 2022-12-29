@@ -2,9 +2,7 @@
 #cxx = conveyor, sxx = station conveyor, d = diverter
 # id, delay, capacity, probe
 begin structure 
-    c11, 10, 2, 0
-    c12, 10, 3, 0
-    c13, 10, 5, 1
+    c1, 10, 10, 1
     c2, 10, 10, 1
     c3, 10, 2,  1
     s1, 10, 10, 1
@@ -16,12 +14,12 @@ end structure
 # x -> y == the end of x is connected to the beginning of y
 # x(xx)->y == the straight connection of x is connected to y and diverted connection is connected to xx
 begin connections
-    c11->c12->c13->c2->d1!s1->d2!s2->c3
+    c1->c2->d1!s1->d2!s2->c3
 end connections
 # agents 
 # a = picking agent, 
 # id, count, markStation, delay, maxBlockedTime, stationName, returnConvName
 begin agents 
-    a, 5, A, 20, 200, s1, c2
-    c, 5, C, 20, 200, s2, c2
+    p, 5, A, 20, 200, s1, c2
+    q, 5, C, 20, 200, s2, c2
 end agents 

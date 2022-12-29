@@ -10,10 +10,15 @@ class Source(Component):
     def changeState(self, ctime):
         if ctime % self.delay == 0 :
             for child in self.children:
-                if child.receive(self.generator(self.idx+1)) == True:
-                    self.idx = self.idx + 1
+                item = self.generator(self.idx+1)
+                if item != None:
+                    if child.receive(item) == True:
+                        self.idx = self.idx + 1
+                    else:
+                        raise Exception(f'source {self.name}, destination = {child.name} is full and can not receive items')
+
     def resetState(self):
         self.idx = 0
-            
+  
     def printState(self):
         print('%s -> %d' % (self.name, self.idx))

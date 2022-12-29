@@ -184,13 +184,25 @@ class Warehouse:
             else:
                 print(c.name)
                 break
-            
+    
+    def getSortedComponents(self):
+        labels = []
+        def __traverse(c):
+            if c.name[-6:-1] != '_prob': 
+                labels.append(c.name)
+            for id in range(len(c.children)-1, -1, -1):
+                __traverse(c.children[id])
 
+        __traverse(self.source)    
+        return labels
 class ActionStrategy:
     def __init__(self):
         self.ix = 0 
+  
     def setItems(self, items):
+        self.ix = 0 
         self.items= items
+
     def setAction(self, action):
         self.action = action 
 
