@@ -8,10 +8,9 @@ class Box(object):
         self.id = id
         self.type = type
         self.route = route
-        self.pickedMask = 0  
         self.deadline = deadline
-        self.finishTime = -1 
-
+        self.reset()
+        
     def __str__(self):
         if self.finishTime >= 0:
             return "B(%s, %s, %s, %d, %d)" % (self.id, self.type, self.routeToString(), self.deadline, self.finishTime)
@@ -37,6 +36,10 @@ class Box(object):
 
     def pickAtIx(self, ix):
         self.pickedMask |= 1 << ix
+
+    def reset(self):
+        self.pickedMask = 0 
+        self.finishTime = -1 
 
     def pickAtS(self, s):   
         return self.pickAtIx(self.stationToIx(s))

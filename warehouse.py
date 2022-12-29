@@ -190,6 +190,8 @@ class Warehouse:
         def __traverse(c):
             if c.name[-6:-1] != '_prob': 
                 labels.append(c.name)
+                for a in c.agents:
+                    labels.append(a.name)
             for id in range(len(c.children)-1, -1, -1):
                 __traverse(c.children[id])
 
