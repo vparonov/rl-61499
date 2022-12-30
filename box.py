@@ -5,12 +5,12 @@ class Box(object):
     max_stations = 2 
 
     def __init__(self, id, type, route, deadline):
-        self.id = id
+        self.id = int(id)
         self.type = type
-        self.route = route
-        self.deadline = deadline
+        self.route = int(route)
+        self.deadline = int(deadline)
         self.reset()
-        
+
     def __str__(self):
         if self.finishTime >= 0:
             return "B(%s, %s, %s, %d, %d)" % (self.id, self.type, self.routeToString(), self.deadline, self.finishTime)

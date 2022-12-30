@@ -5,9 +5,7 @@ import numpy as np
 
 from matplotlib import colors
 from warehouse import Warehouse
-from box import Box 
-
-
+from dataloader import BoxListFromFile
 
 class RandomPolicy():
     def __init__(self, minwait, maxwait):
@@ -106,7 +104,7 @@ def plot(title, npstate, sorted_components, max_plot_steps):
     #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     norm = colors.BoundaryNorm(bounds, cmap.N)
     fig, ax = plt.subplots(1,1)
-    img = ax.imshow(npstate[:max_plot_steps,:-1], aspect= 'auto', cmap=cmap, norm=norm, interpolation='nearest')
+    img = ax.imshow(npstate[:,:-1], aspect= 'auto', cmap=cmap, norm=norm, interpolation='nearest')
     ax.set_xticks(range(len(sorted_components)-1))
     ax.set_xticklabels(sorted_components[:-1])
     plt.xticks(rotation=90)
@@ -120,18 +118,18 @@ def resetItems(items):
     for item in items:
         item.reset()
 
-nitems = 100
-items = [Box.random() for i in range(nitems)]
+items = BoxListFromFile('data/b_2_172_1_1_1_1000_5000.txt')
+nitems = len(items)
 
 w = Warehouse('test', 'files/wh1.txt')
 sorted_components = w.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
 #w.printStructure()
-bursts = [10, 15]
+bursts = [10, 10]
 waits  = [40]
 wb = 1
 
-itemTrace = np.zeros((100, len(sorted_components_dict.keys())))
+itemTrace = np.zeros((nitems, len(sorted_components_dict.keys())))
 fullInternalState = np.zeros(54)
 max_plot_steps = 500
 
@@ -141,6 +139,8 @@ for xx in range(1):
             resetItems(items)
             state, info = w.reset(items)
             policy = HeuristicPolicy(burstSize=b, waitBetweenBoxes= wb, waitBetweenBursts=ww)
+            #policy = RandomPolicy(minwait=1, maxwait=5)
+            
             npstate = np.empty(len(sorted_components))
 
             for ctime in range(10000):
