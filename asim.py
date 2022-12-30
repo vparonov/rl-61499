@@ -88,7 +88,7 @@ def saveInternalStateInFile(fullInternalState, fileName):
     np.savetxt(fileName, fullInternalState, fmt='%3.0f', delimiter=',') 
 
 
-def plot(title, npstate, sorted_components, max_plot_steps):
+def plot(title, npstate, sorted_components):
     cmap = plt.cm.jet  # define the colormap
     # extract all colors from the .jet map
     cmaplist = [cmap(i) for i in range(cmap.N)]
@@ -118,7 +118,10 @@ def resetItems(items):
     for item in items:
         item.reset()
 
-items = BoxListFromFile('data/b_2_172_1_1_1_1000_5000.txt')
+datafolder = 'data'
+datafile = 'b_2_172_1_1_1_1000_5000.txt'
+
+items = BoxListFromFile(f'{datafolder}/{datafile}')
 nitems = len(items)
 
 w = Warehouse('test', 'files/wh1.txt')
@@ -129,10 +132,6 @@ bursts = [10, 10]
 waits  = [40]
 wb = 1
 
-itemTrace = np.zeros((nitems, len(sorted_components_dict.keys())))
-fullInternalState = np.zeros(54)
-max_plot_steps = 500
-
 for xx in range(1):
     for ww in waits:
         for b in bursts:
@@ -142,24 +141,22 @@ for xx in range(1):
             #policy = RandomPolicy(minwait=1, maxwait=5)
             
             npstate = np.empty(len(sorted_components))
+            fullInternalState = np.zeros(54)
 
             for ctime in range(10000):
                 action = policy(ctime, state)
                 state, reward, terminated, truncated, info = w.step(action)
 
                 npstate = appendNPState(state, sorted_components, npstate)
-                itemTrace= np.maximum(itemTrace, itemStateAsNumPy(state, nitems, sorted_components_dict, ctime))
-
+         
                 instate = getInternalStateAsNumPy(w.getInternalState(), sorted_components)
         
                 fullInternalState = np.vstack((fullInternalState, instate))
 
                 if terminated:
                     title = f'ok. burst size = {b} wait = {ww} finished after {ctime} steps, reward {reward}'
-                    plot(title, npstate, sorted_components, max_plot_steps)  
-                    #saveItemTraceInFile(itemTrace, f'files/itemstrace{b}_{ww}_{ctime}.txt')                             
-                    
-                    saveInternalStateInFile(fullInternalState, f'results/internalstate{b}_{ww}_{ctime}.txt')
+                    plot(title, npstate, sorted_components)  
+                    saveInternalStateInFile(fullInternalState, f'results/internalstate_{datafile}')
                     #plt.imshow(fullInternalState, aspect= 'auto')
                     #plt.show()
                   
@@ -167,11 +164,11 @@ for xx in range(1):
                 elif truncated:
                     print(info)
                     title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps, reward {reward}'
-                    plot(title, npstate, sorted_components, max_plot_steps)
-                    saveInternalStateInFile(fullInternalState, f'results/internalstate{b}_{ww}_{ctime}.txt')
+                    plot(title, npstate, sorted_components)
+                    saveInternalStateInFile(fullInternalState, f'results/internalstate_{datafile}')
                     break 
 
             if not terminated and not truncated:
                 title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps {info}'
-                plot(title, npstate, sorted_components, max_plot_steps)
+                plot(title, npstate, sorted_components)
    
