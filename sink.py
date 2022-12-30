@@ -24,7 +24,7 @@ class Sink(Component):
         self.countReceived = 0
         self.ctime = 0 
         self.received = []
-        
+
     def printAll(self):
         self.printState()
         print('%s -> [' % (self.name), end = '')
@@ -37,3 +37,6 @@ class Sink(Component):
             else:
                 print('()', end = delim)
         print('')
+
+    def getInternalState(self):
+        return self.received.copy()

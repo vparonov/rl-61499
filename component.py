@@ -28,6 +28,9 @@ class Component(object):
         for child in self.children:
             child.print()
 
+    def getInternalState(self):
+        raise NotImplementedError
+
     def reset(self):
         self.resetState()
         for child in self.children:

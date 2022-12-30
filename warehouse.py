@@ -198,6 +198,21 @@ class Warehouse:
 
         __traverse(self.source)    
         return labels
+
+    def getInternalState(self):
+        internalState = {}
+        
+        def __traverse(c):
+            if c.name[-6:-1] != '_prob': 
+                internalState[c.name] = c.getInternalState()
+                for a in c.agents:
+                    internalState[a.name] = a.getInternalState()
+            for id in range(len(c.children)-1, -1, -1):
+                __traverse(c.children[id])
+
+        __traverse(self.source.children[0])    
+ 
+        return internalState
 class ActionStrategy:
     def __init__(self):
         self.ix = 0 

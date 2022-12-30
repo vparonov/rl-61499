@@ -61,6 +61,9 @@ class Conveyor(Component):
 
         return True 
 
+    def getInternalState(self):
+        return self.buffer.copy()
+        
     def printState(self):
         countBoxes = 0 
         for ix in range(0, self.capacity):

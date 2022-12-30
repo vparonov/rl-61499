@@ -67,6 +67,9 @@ class PickingAgent(Agent):
             print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
         self.counter = self.delay
 
+    def getInternalState(self):
+        return [self.workload]
+        
     def printState(self):
         print('agent: %s is %s current blocked time = %d max blocked time = %d' % 
             (self.name, 
