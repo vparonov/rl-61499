@@ -159,7 +159,7 @@ for xx in range(1):
                     plot(title, npstate, sorted_components, max_plot_steps)  
                     #saveItemTraceInFile(itemTrace, f'files/itemstrace{b}_{ww}_{ctime}.txt')                             
                     
-                    saveInternalStateInFile(fullInternalState, f'files/internalstate{b}_{ww}_{ctime}.txt')
+                    saveInternalStateInFile(fullInternalState, f'results/internalstate{b}_{ww}_{ctime}.txt')
                     #plt.imshow(fullInternalState, aspect= 'auto')
                     #plt.show()
                   
@@ -168,7 +168,7 @@ for xx in range(1):
                     print(info)
                     title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps, reward {reward}'
                     plot(title, npstate, sorted_components, max_plot_steps)
-                    saveInternalStateInFile(fullInternalState, f'files/internalstate{b}_{ww}_{ctime}.txt')
+                    saveInternalStateInFile(fullInternalState, f'results/internalstate{b}_{ww}_{ctime}.txt')
                     break 
 
             if not terminated and not truncated:
