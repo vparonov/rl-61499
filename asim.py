@@ -140,7 +140,7 @@ for xx in range(1):
             policy = HeuristicPolicy(burstSize=b, waitBetweenBoxes= wb, waitBetweenBursts=ww)
             #policy = RandomPolicy(minwait=1, maxwait=5)
             
-            npstate = np.empty(len(sorted_components))
+            npstate = np.zeros(len(sorted_components))
             fullInternalState = np.zeros(54)
 
             for ctime in range(10000):
@@ -171,4 +171,4 @@ for xx in range(1):
             if not terminated and not truncated:
                 title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps {info}'
                 plot(title, npstate, sorted_components)
-   
+ 

@@ -78,7 +78,7 @@ class Warehouse:
             #self.source.print()
             if self.components['__sink__'].countReceived == self.nitems:
                 terminated = True
-                reward = 10  
+                reward = 10 - self.t / 1000.0 
             else:
                 reward = self.reward(state)
         except Exception as e:
