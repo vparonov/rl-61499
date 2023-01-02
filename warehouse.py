@@ -62,7 +62,11 @@ class Warehouse:
     def reset(self,itemsToPick):
         self.source.reset()
         self.state.reset()
+        for item in itemsToPick:
+            item.reset()
+
         self.t = 0
+        self.maxT = self.calcMaxT(itemsToPick)
         self.nitems= len(itemsToPick)
         self.strategy.setItems(itemsToPick) 
         return self.state, '' 
@@ -73,6 +77,8 @@ class Warehouse:
         truncated = False 
         info = ''
         try:
+            if self.t > self.maxT:
+                raise Exception(f'the maximum simulation time of {self.maxT} steps reached')
             self.source.tick(self.t)
             state = self.state 
             #self.source.print()
@@ -90,6 +96,15 @@ class Warehouse:
         self.t += 1 
         return state, reward, terminated, truncated, info
   
+
+    def calcMaxT(self, itemsToPick):
+        maxt = 1e6
+        # max simulation time
+        # is minimal deadline time of itemsToPick
+        for item in itemsToPick:
+            if maxt > item.deadline:
+                maxt = item.deadline
+        return maxt 
     def getCapacities(self, componentIds):
         return [ self.components[id].capacity if id in self.components.keys() else 1 for id in componentIds]
     def addStructure(self, s):
