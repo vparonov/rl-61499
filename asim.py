@@ -66,8 +66,8 @@ def getInternalStateAsNumPy(internalState, sorted_components) :
         res+= [b.id if b != None else 0 for b in internalState[c]]
     return np.asarray(res)
 
-def stateAsNumPy(state, sorted_components):
-    return np.asarray([state.componentsState[c] for c in sorted_components])
+def stateAsNumPy(state, sorted_components, capacities):
+    return np.asarray([state.componentsState[c] for c in sorted_components]) / capacities
 
 def itemStateAsNumPy(state, nitems, sorted_components_dict, step):
     itemsState = state.itemsState
@@ -77,8 +77,8 @@ def itemStateAsNumPy(state, nitems, sorted_components_dict, step):
         res[k-1, sorted_components_dict[itemsState[k]]] = step
     return res 
 
-def appendNPState(state, sorted_components, npstate):
-    tmp = stateAsNumPy(state, sorted_components)
+def appendNPState(state, sorted_components, capacities, npstate):
+    tmp = stateAsNumPy(state, sorted_components, capacities)
     return np.vstack((npstate, tmp))
 
 def saveItemTraceInFile(itemTrace, fileName):
@@ -89,29 +89,15 @@ def saveInternalStateInFile(fullInternalState, fileName):
 
 
 def plot(title, npstate, sorted_components):
-    cmap = plt.cm.jet  # define the colormap
-    # extract all colors from the .jet map
-    cmaplist = [cmap(i) for i in range(cmap.N)]
-    # force the first color entry to be grey
-    cmaplist[0] = (.5, .5, .5, 1.0)
-
-    # create the new map
-    cmap = mpl.colors.LinearSegmentedColormap.from_list(
-        'Custom cmap', cmaplist, cmap.N)
-
-    # define the bins and normalize
-    bounds = np.linspace(0, 10, 11)
-    #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-    norm = colors.BoundaryNorm(bounds, cmap.N)
-    fig, ax = plt.subplots(1,1)
-    img = ax.imshow(npstate[:,:-1], aspect= 'auto', cmap=cmap, norm=norm, interpolation='nearest')
-    ax.set_xticks(range(len(sorted_components)-1))
-    ax.set_xticklabels(sorted_components[:-1])
-    plt.xticks(rotation=90)
-    plt.ylabel('time step')
-    plt.xlabel('component')
+    cmap = plt.cm.inferno 
+    _, ax = plt.subplots(1,1)
+    img = ax.imshow(npstate[:,:-1].T, aspect= 'auto', cmap=cmap, interpolation='nearest')
+    ax.set_yticks(range(len(sorted_components)-1))
+    ax.set_yticklabels(sorted_components[:-1])
+    plt.xlabel('time step')
+    plt.ylabel('component')
     plt.title(title)
-    plt.colorbar(img, boundaries=bounds, ticks=bounds)
+    plt.colorbar(img)
     plt.show()
 
 def resetItems(items):
@@ -119,7 +105,7 @@ def resetItems(items):
         item.reset()
 
 datafolder = 'data'
-datafile = 'b_2_172_1_1_1_1000_5000.txt'
+datafile = 'b_108_686_1_1_1_1000_5000.txt'#'b_2_172_1_1_1_1000_5000.txt'
 
 items = BoxListFromFile(f'{datafolder}/{datafile}')
 nitems = len(items)
@@ -127,14 +113,21 @@ nitems = len(items)
 w = Warehouse('test', 'files/wh1.txt')
 sorted_components = w.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
+capacities = np.asarray(w.getCapacities(sorted_components))
 #w.printStructure()
-bursts = [10, 10]
-waits  = [40]
+bursts = range(1, 50, 1)
+waits  = range(1, 50, 1)
 wb = 1
+
+
+best_reward = -1000 
+best_npstate = None 
+best_title = ''
 
 for xx in range(1):
     for ww in waits:
         for b in bursts:
+            print(ww, b)
             resetItems(items)
             state, info = w.reset(items)
             policy = HeuristicPolicy(burstSize=b, waitBetweenBoxes= wb, waitBetweenBursts=ww)
@@ -143,32 +136,36 @@ for xx in range(1):
             npstate = np.zeros(len(sorted_components))
             fullInternalState = np.zeros(54)
 
-            for ctime in range(10000):
+            for ctime in range(100000):
                 action = policy(ctime, state)
                 state, reward, terminated, truncated, info = w.step(action)
 
-                npstate = appendNPState(state, sorted_components, npstate)
+                npstate = appendNPState(state, sorted_components, capacities, npstate)
          
                 instate = getInternalStateAsNumPy(w.getInternalState(), sorted_components)
         
                 fullInternalState = np.vstack((fullInternalState, instate))
 
                 if terminated:
-                    title = f'ok. burst size = {b} wait = {ww} finished after {ctime} steps, reward {reward}'
-                    plot(title, npstate, sorted_components)  
-                    saveInternalStateInFile(fullInternalState, f'results/internalstate_{datafile}')
+                    if reward > best_reward:
+                        best_reward = reward
+                        best_title = f'ok. burst size = {b} wait = {ww} finished after {ctime} steps, reward {reward}'
+                        best_npstate = npstate.copy()
+                    #saveInternalStateInFile(fullInternalState, f'results/internalstate_{datafile}')
                     #plt.imshow(fullInternalState, aspect= 'auto')
                     #plt.show()
                   
                     break
                 elif truncated:
-                    print(info)
-                    title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps, reward {reward}'
-                    plot(title, npstate, sorted_components)
-                    saveInternalStateInFile(fullInternalState, f'results/internalstate_{datafile}')
+                    # print(info)
+                    # title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps, reward {reward}'
+                    # plot(title, npstate, sorted_components)
+                    # saveInternalStateInFile(fullInternalState, f'results/internalstate_{datafile}')
                     break 
 
             if not terminated and not truncated:
                 title = f'failed. burst size = {b} wait = {ww} failed after {ctime} steps {info}'
                 plot(title, npstate, sorted_components)
  
+
+plot(best_title, best_npstate, sorted_components)  

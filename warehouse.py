@@ -90,6 +90,8 @@ class Warehouse:
         self.t += 1 
         return state, reward, terminated, truncated, info
   
+    def getCapacities(self, componentIds):
+        return [ self.components[id].capacity if id in self.components.keys() else 1 for id in componentIds]
     def addStructure(self, s):
         probe = None 
 
