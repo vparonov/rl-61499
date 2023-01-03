@@ -7,9 +7,10 @@ from policies import HeuristicPolicy
 
 
 datafolder = 'data'
-datafile = 'b_154_958_1_1_1_10000_20000.txt'
+datafile = 'b_979_116_1_1_1_10000_20000.txt'
 
 items = BoxListFromFile(f'{datafolder}/{datafile}')
+items.sort(reverse=False, key=lambda b: b.route)
 nitems = len(items)
 
 w = Warehouse('test', 'files/wh1.txt')
@@ -60,9 +61,9 @@ for ww in waits:
                 
                 break
             elif truncated:
-                # print(info)
-                print(f'failed. burst size = {b} wait = {ww} failed after {ctime} steps, reward {reward}')
-                # plot(title, npstate, sorted_components)
+                title = f'failed.{info}, burst size = {b} wait = {ww} failed after {ctime} steps, reward {reward}'
+                print(title)
+                plot(title, npstate, sorted_components)
                 # saveInternalStateInFile(fullInternalState, f'results/internalstate_{datafile}')
                 break 
 
