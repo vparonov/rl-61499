@@ -6,15 +6,13 @@ from dataloader import BoxListFromFile
 from policies import StateFullHeuristicPolicy
 
 
-datafolder = 'data'
-datafile = 'b_4_808_1_1_1_10000_20000.txt'#'b_979_116_1_1_1_10000_20000.txt'
+#datafolder = 'data/train'
+#datafile = 'b_4_808_1_1_1_10000_20000.txt'#'b_979_116_1_1_1_10000_20000.txt'
 
-items = BoxListFromFile(f'{datafolder}/{datafile}')
+#items = BoxListFromFile(f'{datafolder}/{datafile}')
 #items.sort(reverse=True, key=lambda b: b.route)
 
-nitems = len(items)
-
-w = Warehouse('test', 'files/wh1.txt')
+w = Warehouse('test', 'files/wh1.txt', 'data/train')
 
 sorted_components = w.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
@@ -25,7 +23,7 @@ best_npstate = None
 best_title = ''
 
 for fillFactor in [0.1, 0.2, 0.3, 0.40, 0.5, 0.6]:
-    state, info = w.reset(items)
+    state, info = w.reset()
     policy = StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = fillFactor)
     
     npstate = np.zeros(len(sorted_components))

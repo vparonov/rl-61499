@@ -1,3 +1,6 @@
+import glob
+import random 
+
 from collections import defaultdict
 from source import Source 
 from sink import Sink 
@@ -6,13 +9,28 @@ from state import State
 from pickingagent import PickingAgent
 from conveyor import Conveyor
 from diverter import Diverter
+from dataloader import BoxListFromFile
+
 from policies import FIFO, SKIP 
 
+
+class ActionSpace():
+    def __init__(self, actions):
+        self.actions = actions 
+        self.n = len(self.actions)
+    
+    def sample(self):
+        return random.sample(self.actions, k=1)[0]
+    
 class Warehouse:
-    def __init__(self, name, fileName):
+    def __init__(self, name, fileName, datadir):
         self.name = name
         self.source = Source(name + '.source', '', 1, lambda ctime : self.strategy(ctime)) 
         self.state = State()
+        
+        self.datafiles = self.enumerateDataFiles(datadir)
+
+        self.action_space = ActionSpace([SKIP, FIFO])
 
         sink = Sink(name + '.sink', '')
         sinkProbe = StateProbe(name + '.sink_probe', '', self.state, name + '.sink')
@@ -60,7 +78,11 @@ class Warehouse:
         countReceived = self.components['__sink__'].countReceived 
         return countReceived / self.nitems
 
-    def reset(self,itemsToPick):
+    def reset(self,itemsToPick = None):
+
+        if itemsToPick == None:
+            itemsToPick = BoxListFromFile(self.sampleDataFiles())
+
         self.source.reset()
         self.state.reset()
         for item in itemsToPick:
@@ -231,6 +253,13 @@ class Warehouse:
         __traverse(self.source.children[0])    
  
         return internalState
+
+    def enumerateDataFiles(self, dataDir):
+        return glob.glob(f'{dataDir}/*.txt')
+
+    def sampleDataFiles(self):
+        return random.sample(self.datafiles, k=1)[0]
+
 class ActionStrategy:
     def __init__(self):
         self.ix = 0 
@@ -251,3 +280,4 @@ class ActionStrategy:
         elif self.action == SKIP:
             return None 
         return None 
+
