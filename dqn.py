@@ -1,4 +1,8 @@
 # based on https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 import math
 import random
 import numpy as np
@@ -60,7 +64,7 @@ BATCH_SIZE = 128
 GAMMA = 0.99
 EPS_START = 0.9
 EPS_END = 0.05
-EPS_DECAY = 1000
+EPS_DECAY = 10000
 TAU = 0.005
 LR = 1e-4
 
@@ -102,22 +106,22 @@ def select_action(state):
     else:
         return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
 
-episode_durations = []
+episode_rewards = []
 
-def plot_durations(show_result=False):
+def plot_rewards(show_result=False):
     plt.figure(1)
-    durations_t = torch.tensor(episode_durations, dtype=torch.float)
+    rewards_t = torch.tensor(episode_rewards, dtype=torch.float)
     if show_result:
         plt.title('Result')
     else:
         plt.clf()
         plt.title('Training...')
     plt.xlabel('Episode')
-    plt.ylabel('Duration')
-    plt.plot(durations_t.numpy())
+    plt.ylabel('Reward')
+    plt.plot(rewards_t.numpy())
     # Take 100 episode averages and plot them too
-    if len(durations_t) >= 100:
-        means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
+    if len(rewards_t) >= 100:
+        means = rewards_t.unfold(0, 100, 1).mean(1).view(-1)
         means = torch.cat((torch.zeros(99), means))
         plt.plot(means.numpy())
 
@@ -158,8 +162,9 @@ def optimize_model():
     # Compute the expected Q values
     expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
-    # Compute Huber loss
+    #original # Compute Huber loss
     criterion = nn.SmoothL1Loss()
+    #modified criterion = nn.CrossEntropyLoss()
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
     # Optimize the model
@@ -170,14 +175,13 @@ def optimize_model():
     optimizer.step()
 
 
-if torch.cuda.is_available():
-    num_episodes = 600
-else:
-    num_episodes = 50
+num_episodes = 1200
 
 for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
     state, _ = env.reset()
+    # the sink component's capacity = the number of items
+    capacities[-1] = env.nitems
     normalizedState =  np.zeros(len(sorted_components))
 
     state = torch.tensor(normalizedState, dtype=torch.float32, device=device).unsqueeze(0)
@@ -212,11 +216,11 @@ for i_episode in range(num_episodes):
         target_net.load_state_dict(target_net_state_dict)
 
         if done:
-            episode_durations.append(t + 1)
-            plot_durations()
+            episode_rewards.append(reward)
+            plot_rewards()
             break
 
 print('Complete')
-plot_durations(show_result=True)
+plot_rewards(show_result=True)
 plt.ioff()
 plt.show()

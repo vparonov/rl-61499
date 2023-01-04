@@ -24,6 +24,7 @@ best_title = ''
 
 for fillFactor in [0.1, 0.2, 0.3, 0.40, 0.5, 0.6]:
     state, info = w.reset()
+    capacities[-1] = w.nitems
     policy = StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = fillFactor)
     
     npstate = np.zeros(len(sorted_components))

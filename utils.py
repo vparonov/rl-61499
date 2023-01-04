@@ -16,9 +16,9 @@ def appendNPState(state, sorted_components, capacities, npstate):
 def plot(title, npstate, sorted_components):
     cmap = plt.cm.inferno 
     _, ax = plt.subplots(1,1)
-    img = ax.imshow(npstate[:,:-1].T, aspect= 'auto', cmap=cmap, interpolation='nearest')
-    ax.set_yticks(range(len(sorted_components)-1))
-    ax.set_yticklabels(sorted_components[:-1])
+    img = ax.imshow(npstate.T, aspect= 'auto', cmap=cmap, interpolation='nearest')
+    ax.set_yticks(range(len(sorted_components)))
+    ax.set_yticklabels(sorted_components)
     plt.xlabel('time step')
     plt.ylabel('component')
     plt.title(title)

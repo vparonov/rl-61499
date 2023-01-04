@@ -32,8 +32,6 @@ class Conveyor(Component):
 
     # puts an item to the conveyeror at the first empty position from the beginning
     def putItem(self, item):
-        if self.name == 's1':
-            print('s1 :', item)
         for ix in range(self.capacity):
             if self.buffer[ix] is None:
                 self.buffer[ix] = item
