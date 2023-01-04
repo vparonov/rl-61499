@@ -2,10 +2,10 @@ import numpy as np
 import glob
 import matplotlib.pyplot as plt
 
-from utils import getInternalStateAsNumPy, appendNPState, plot
+from utils import getInternalStateAsNumPy, stateAsNumPy, plot
 from warehouse import Warehouse
 from dataloader import BoxListFromFile
-from policies import HeuristicPolicy
+from policies import HeuristicPolicy, StateFullHeuristicPolicy
 
 
 datafolder = 'data'
@@ -34,26 +34,31 @@ y = []
 fail_x = []
 fail_y = []
 
+#policy = HeuristicPolicy(burstSize=b, waitBetweenBoxes= wb, waitBetweenBursts=ww)
+policy = StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4)
+
 for datafile in glob.glob(f'{datafolder}/*.txt'):
 
     items = BoxListFromFile(datafile)
     nitems = len(items)
     state, info = w.reset(items)
-    policy = HeuristicPolicy(burstSize=b, waitBetweenBoxes= wb, waitBetweenBursts=ww)
     #policy = RandomPolicy(minwait=1, maxwait=5)
     
     npstate = np.zeros(len(sorted_components))
+    normalizedState =  np.zeros(len(sorted_components))
+
     fullInternalState = np.zeros(54)
 
     #for ctime in range(100000):
     ctime = 0 
     while True:
 
-        action = policy(ctime, state)
+        action = policy(ctime, normalizedState)
         state, reward, terminated, truncated, info = w.step(action)
 
-        npstate = appendNPState(state, sorted_components, capacities, npstate)
-    
+        normalizedState = stateAsNumPy(state, sorted_components, capacities)
+        npstate = np.vstack((npstate, normalizedState))
+     
         instate = getInternalStateAsNumPy(w.getInternalState(), sorted_components)
 
         fullInternalState = np.vstack((fullInternalState, instate))

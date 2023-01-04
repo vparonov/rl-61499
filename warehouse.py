@@ -6,6 +6,7 @@ from state import State
 from pickingagent import PickingAgent
 from conveyor import Conveyor
 from diverter import Diverter
+from policies import FIFO, SKIP 
 
 class Warehouse:
     def __init__(self, name, fileName):
@@ -242,11 +243,11 @@ class ActionStrategy:
         self.action = action 
 
     def __call__(self, ctime):
-        if self.action == 'FIFO':
+        if self.action == FIFO:
             if self.ix < len(self.items):
                 item = self.items[self.ix]
                 self.ix += 1 
                 return item
-        elif self.action == 'SKIP':
+        elif self.action == SKIP:
             return None 
         return None 
