@@ -71,7 +71,8 @@ EPS_DECAY = 10000
 TAU = 0.005
 LR = 1e-4
 
-env = Warehouse('dqn_test', 'files/wh1.txt', 'data/train')
+TRAINING_DIR = 'data/train_100_400life'
+env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR)
 
 sorted_components = env.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
@@ -115,10 +116,10 @@ def plot_rewards(show_result=False):
     plt.figure(1)
     rewards_t = torch.tensor(episode_rewards, dtype=torch.float)
     if show_result:
-        plt.title('Result')
+        plt.title(f'Result {TRAINING_DIR}')
     else:
         plt.clf()
-        plt.title('Training...')
+        plt.title(f'Training...{TRAINING_DIR}')
     plt.xlabel('Episode')
     plt.ylabel('Reward')
     plt.plot(rewards_t.numpy())
@@ -166,9 +167,9 @@ def optimize_model():
     expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
     # original # Compute Huber loss
-    criterion = nn.SmoothL1Loss()
+    #criterion = nn.SmoothL1Loss()
     # modified criterion = nn.CrossEntropyLoss()
-    #criterion = nn.MSELoss()
+    criterion = nn.MSELoss()
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
     # Optimize the model

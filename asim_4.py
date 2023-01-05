@@ -66,7 +66,7 @@ for datafile in glob.glob(f'{datafolder}/*.txt'):
         fullInternalState = np.vstack((fullInternalState, instate))
 
         if terminated:
-            title = f'ok.{datafile}, items = {len(items)}, burst size = {b} wait = {ww} finished after {ctime} steps, reward {reward}'
+            title = f'ok.{datafile}, items = {len(items)}, burst size = {b} wait = {ww} finished after {ctime} steps, avg {ctime/len(items)}steps per item reward {reward}'
             print(title)
             x.append(len(items))
             y.append(ctime)
