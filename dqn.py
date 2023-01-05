@@ -16,8 +16,10 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+
 from warehouse import Warehouse
 from utils import stateAsNumPy
+from onnxutils import saveModelToOnnx
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -53,6 +55,7 @@ class DQN(nn.Module):
         return self.layer3(x)
 
 
+
 # BATCH_SIZE is the number of transitions sampled from the replay buffer
 # GAMMA is the discount factor as mentioned in the previous section
 # EPS_START is the starting value of epsilon
@@ -60,7 +63,7 @@ class DQN(nn.Module):
 # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 # TAU is the update rate of the target network
 # LR is the learning rate of the AdamW optimizer
-BATCH_SIZE = 128
+BATCH_SIZE = 512
 GAMMA = 0.99
 EPS_START = 0.9
 EPS_END = 0.05
@@ -87,7 +90,7 @@ target_net = DQN(n_observations, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = ReplayMemory(10000)
+memory = ReplayMemory(20000)
 
 steps_done = 0
 
@@ -162,9 +165,10 @@ def optimize_model():
     # Compute the expected Q values
     expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
-    #original # Compute Huber loss
+    # original # Compute Huber loss
     criterion = nn.SmoothL1Loss()
-    #modified criterion = nn.CrossEntropyLoss()
+    # modified criterion = nn.CrossEntropyLoss()
+    #criterion = nn.MSELoss()
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
     # Optimize the model
@@ -175,7 +179,7 @@ def optimize_model():
     optimizer.step()
 
 
-num_episodes = 1200
+num_episodes = 100
 
 for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
@@ -196,6 +200,8 @@ for i_episode in range(num_episodes):
             next_state = None
         else:
             normalizedState = stateAsNumPy(observation, sorted_components, capacities)
+            #clear the state of the sink 
+            normalizedState[-1] = 0
             next_state = torch.tensor(normalizedState, dtype=torch.float32, device=device).unsqueeze(0)
 
         # Store the transition in memory
@@ -221,6 +227,8 @@ for i_episode in range(num_episodes):
             break
 
 print('Complete')
+
+saveModelToOnnx(target_net, n_observations, 'models/trained_policy_network.onnx')
 plot_rewards(show_result=True)
 plt.ioff()
 plt.show()

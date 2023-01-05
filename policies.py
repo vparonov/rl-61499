@@ -1,4 +1,5 @@
 import random
+from onnxutils import loadModelFromOnnx, getPrediction
 
 SKIP = 0 
 FIFO = 1
@@ -66,3 +67,11 @@ class StateFullHeuristicPolicy():
         if fill <= self.fillMargin:
             return FIFO
         return SKIP
+
+
+class RLPolicy():
+    def __init__(self, fileName):
+         self.model = loadModelFromOnnx(fileName)
+
+    def __call__(self, ctime, state):
+        return getPrediction(self.model, state)
