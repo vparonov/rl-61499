@@ -23,12 +23,19 @@ class ActionSpace():
         return random.sample(self.actions, k=1)[0]
     
 class Warehouse:
-    def __init__(self, name, fileName, datadir):
+    def __init__(self, name, fileName, datadir, randomFileSelect = False):
         self.name = name
         self.source = Source(name + '.source', '', 1, lambda ctime : self.strategy(ctime)) 
         self.state = State()
         
-        self.datafiles = self.enumerateDataFiles(datadir)
+        self.randomFileSelect = randomFileSelect
+
+        if datadir != None:
+            self.datafiles = self.enumerateDataFiles(datadir)
+            self.datafiles.sort()
+            self.fileIx = 0
+        else:
+            self.datafiles = []
 
         self.action_space = ActionSpace([SKIP, FIFO])
 
@@ -81,7 +88,9 @@ class Warehouse:
     def reset(self,itemsToPick = None):
 
         if itemsToPick == None:
-            itemsToPick = BoxListFromFile(self.sampleDataFiles())
+            fileName = self.sampleDataFiles()
+            print(fileName)
+            itemsToPick = BoxListFromFile(fileName)
 
         self.source.reset()
         self.state.reset()
@@ -107,12 +116,12 @@ class Warehouse:
             #self.source.print()
             if self.components['__sink__'].countReceived == self.nitems:
                 terminated = True
-                reward = 10 - self.t / 1000.0 
+                reward = 1.0 * (1.0 + self.nitems / self.t)  
             else:
                 reward = self.reward(state)
         except Exception as e:
             info = e 
-            reward = -10
+            reward = -1.0
             state = self.state 
             truncated = True 
 
@@ -258,7 +267,12 @@ class Warehouse:
         return glob.glob(f'{dataDir}/*.txt')
 
     def sampleDataFiles(self):
-        return random.sample(self.datafiles, k=1)[0]
+        if self.randomFileSelect:
+            return random.sample(self.datafiles, k=1)[0]
+        else:
+            f = self.datafiles[self.fileIx]
+            self.fileIx = (self.fileIx + 1) % len(self.datafiles)
+            return f
 
 class ActionStrategy:
     def __init__(self):

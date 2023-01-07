@@ -12,7 +12,7 @@ datafile = 'b_801_816_1_1_1_10000_20000.txt'#'b_979_116_1_1_1_10000_20000.txt'
 items = BoxListFromFile(f'{datafolder}/{datafile}')
 #items.sort(reverse=False, key=lambda b: b.route)
 
-w = Warehouse('test', 'files/wh1.txt', None)
+w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
 
 sorted_components = w.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
@@ -38,6 +38,7 @@ for policy in [StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0
         state, reward, terminated, truncated, info = w.step(action)
 
         normalizedState = stateAsNumPy(state, sorted_components, capacities)
+        normalizedState[0] = action 
         npstate = np.vstack((npstate, normalizedState))
     
         instate = getInternalStateAsNumPy(w.getInternalState(), sorted_components)

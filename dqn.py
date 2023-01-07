@@ -63,16 +63,16 @@ class DQN(nn.Module):
 # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
 # TAU is the update rate of the target network
 # LR is the learning rate of the AdamW optimizer
-BATCH_SIZE = 512
+BATCH_SIZE = 128
 GAMMA = 0.99
 EPS_START = 0.9
 EPS_END = 0.05
-EPS_DECAY = 10000
+EPS_DECAY = 1000
 TAU = 0.005
 LR = 1e-4
 
-TRAINING_DIR = 'data/train_100_400life'
-env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR)
+TRAINING_DIR = 'data/train_100_350_to_500life'
+env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=True)
 
 sorted_components = env.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
@@ -168,7 +168,7 @@ def optimize_model():
 
     # original # Compute Huber loss
     #criterion = nn.SmoothL1Loss()
-    # modified criterion = nn.CrossEntropyLoss()
+    #criterion = nn.CrossEntropyLoss()
     criterion = nn.MSELoss()
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
@@ -180,7 +180,7 @@ def optimize_model():
     optimizer.step()
 
 
-num_episodes = 100
+num_episodes = 200
 
 for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
