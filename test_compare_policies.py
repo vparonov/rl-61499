@@ -12,18 +12,19 @@ datafile = 'b_801_816_1_1_1_10000_20000.txt'#'b_979_116_1_1_1_10000_20000.txt'
 items = BoxListFromFile(f'{datafolder}/{datafile}')
 #items.sort(reverse=False, key=lambda b: b.route)
 
-w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
+#w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
+w = Warehouse('test', 'files/wh1.txt', None)
 
 sorted_components = w.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
 capacities = np.asarray(w.getCapacities(sorted_components))
 
-best_reward = -1000 
-best_npstate = None 
-best_title = ''
+policies = [
+    StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
+    RLPolicy('models/best.onnx')
+    ]
 
-for policy in [StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
-    RLPolicy('models/trained_policy_network.onnx')]:
+for policy in policies:
     state, info = w.reset(items)
     capacities[-1] = w.nitems
     
