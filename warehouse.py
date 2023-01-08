@@ -81,9 +81,17 @@ class Warehouse:
                 elif state == 3:
                     self.addAgent(s)
   
+    # def reward(self, state):
+    #     countReceived = self.components['__sink__'].countReceived 
+    #     return countReceived / self.nitems
+    
     def reward(self, state):
-        countReceived = self.components['__sink__'].countReceived 
-        return countReceived / self.nitems
+        if self.t > 0:
+            alpha = 0.80
+            countReceived = self.components['__sink__'].countReceived 
+            return alpha * (countReceived / self.t) + (1.0-alpha) * (countReceived / self.nitems)
+        else:
+            return 0 
 
     def reset(self,itemsToPick = None):
 
@@ -91,6 +99,8 @@ class Warehouse:
             fileName = self.sampleDataFiles()
             print(fileName)
             itemsToPick = BoxListFromFile(fileName)
+            if random.random() > 0.8:
+                itemsToPick.sort(reverse=False, key=lambda b: b.route)
 
         self.source.reset()
         self.state.reset()
@@ -108,20 +118,22 @@ class Warehouse:
         terminated = False 
         truncated = False 
         info = ''
+        reward = -10.0
         try:
             if self.t > self.maxT:
                 raise Exception(f'the maximum simulation time of {self.maxT} steps reached')
             self.source.tick(self.t)
             state = self.state 
+            reward = self.reward(state)
             #self.source.print()
             if self.components['__sink__'].countReceived == self.nitems:
                 terminated = True
-                reward = 1.0 * (1.0 + self.nitems / self.t)  
-            else:
-                reward = self.reward(state)
+ #               reward = 1.0 * (1.0 + self.nitems / self.t)  
+ #           else:
+ #               reward = self.reward(state)
         except Exception as e:
             info = e 
-            reward = -1.0
+            #reward = -1.0
             state = self.state 
             truncated = True 
 

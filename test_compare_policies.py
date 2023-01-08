@@ -7,10 +7,11 @@ from policies import StateFullHeuristicPolicy, RLPolicy
 
 
 datafolder = 'data/test'
-datafile = 'b_801_816_1_1_1_10000_20000.txt'#'b_979_116_1_1_1_10000_20000.txt'
+#datafile = 'b_801_816_1_1_1_10000_20000.txt'
+datafile = 'b_979_116_1_1_1_10000_20000.txt'
 
 items = BoxListFromFile(f'{datafolder}/{datafile}')
-#items.sort(reverse=False, key=lambda b: b.route)
+items.sort(reverse=False, key=lambda b: b.route)
 
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
 w = Warehouse('test', 'files/wh1.txt', None)
@@ -21,7 +22,8 @@ capacities = np.asarray(w.getCapacities(sorted_components))
 
 policies = [
     StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
-    RLPolicy('models/best.onnx')
+    RLPolicy('models/best.onnx'), 
+    RLPolicy('models/trained_policy_network.onnx'),
     ]
 
 for policy in policies:
