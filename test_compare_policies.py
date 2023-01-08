@@ -7,8 +7,8 @@ from policies import StateFullHeuristicPolicy, RLPolicy
 
 
 datafolder = 'data/test'
-#datafile = 'b_801_816_1_1_1_10000_20000.txt'
-datafile = 'b_979_116_1_1_1_10000_20000.txt'
+datafile = 'b_801_816_1_1_1_10000_20000.txt'
+#datafile = 'b_979_116_1_1_1_10000_20000.txt'
 
 items = BoxListFromFile(f'{datafolder}/{datafile}')
 items.sort(reverse=False, key=lambda b: b.route)

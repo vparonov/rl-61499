@@ -89,7 +89,7 @@ TAU = 0.05
 LR = 1e-4
 num_episodes = 300
 # +alpha = 0.80
-TRAINING_DIR = 'data/train_100_400_to_500life'
+TRAINING_DIR = 'data/train_100_400_to_500_var'
 
 env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=True)
 

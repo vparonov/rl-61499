@@ -40,6 +40,8 @@ policy = RLPolicy('models/trained_policy_network.onnx')
 for datafile in glob.glob(f'{datafolder}/*.txt'):
 
     items = BoxListFromFile(datafile)
+    #items.sort(reverse=False, key=lambda b: b.route)
+
     nitems = len(items)
     state, info = w.reset(items)
     #policy = RandomPolicy(minwait=1, maxwait=5)
