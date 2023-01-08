@@ -30,6 +30,7 @@ b = 5
 cfiles = 0
 
 x = []
+avg_y = {}
 y = []
 fail_x = []
 fail_y = []
@@ -37,15 +38,16 @@ fail_y = []
 #policy = HeuristicPolicy(burstSize=b, waitBetweenBoxes= wb, waitBetweenBursts=ww)
 policy = RLPolicy('models/trained_policy_network.onnx')
 
+avg = np.zeros(1000)
+
 for datafile in glob.glob(f'{datafolder}/*.txt'):
 
     items = BoxListFromFile(datafile)
-    #items.sort(reverse=False, key=lambda b: b.route)
+    items.sort(reverse=True, key=lambda b: b.route)
 
     nitems = len(items)
     state, info = w.reset(items)
     #policy = RandomPolicy(minwait=1, maxwait=5)
-    
     npstate = np.zeros(len(sorted_components))
     normalizedState =  np.zeros(len(sorted_components))
 
@@ -68,10 +70,12 @@ for datafile in glob.glob(f'{datafolder}/*.txt'):
         fullInternalState = np.vstack((fullInternalState, instate))
 
         if terminated:
-            title = f'ok.{datafile}, items = {len(items)}, burst size = {b} wait = {ww} finished after {ctime} steps, avg {ctime/len(items)}steps per item reward {reward}'
+            title = f'ok.{datafile}, items = {len(items)}, finished after {ctime} steps, avg {ctime/len(items)}steps per item reward {reward}'
             print(title)
             x.append(len(items))
+            
             y.append(ctime)
+            avg[nitems] = ctime/len(items)
             #plot(title, npstate, sorted_components)         
             break
         elif truncated:
@@ -91,4 +95,10 @@ plt.scatter(x, y, label='ok')
 plt.scatter(fail_x, fail_y, label = 'failed')
 plt.xlabel('n items')
 plt.ylabel('time steps')
+plt.show()
+
+
+plt.plot(range(1000), avg, label='ok')
+plt.xlabel('n items')
+plt.ylabel('steps per item')
 plt.show()
