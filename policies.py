@@ -11,7 +11,7 @@ class HeuristicPolicy():
         self.burstSize = burstSize
         self.burstCounter = 0
         self.waittime = 0
-        self.waitbboxes = 1
+        self.waitbboxes = 0
         self.fifoCount = 0
         self.skipCount = 0
 
@@ -19,10 +19,10 @@ class HeuristicPolicy():
         if self.waittime == 0:
             if self.burstCounter < self.burstSize:
                 if self.waitbboxes == self.waitBetweenBoxes:
-                    self.burstCounter += 1
+                    self.burstCounter += 1  
                     #print(ctime, FIFO, self.burstCounter)
                     self.fifoCount += 1
-                    self.waitbboxes = 1
+                    self.waitbboxes = 0
                     return FIFO
                 else:
                     self.waitbboxes += 1

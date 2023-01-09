@@ -1,0 +1,24 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "boxes.tsx",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "boxes.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "/Users/vangel/Desktop",
+    "openFiles": [
+        "boxes.tsx"
+    ],
+    "project": "tiles.tiled-project",
+    "recentFiles": [
+        "boxes.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}
