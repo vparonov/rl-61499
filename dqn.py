@@ -18,7 +18,7 @@ import torch.nn.functional as F
 
 
 from warehouse import Warehouse
-from utils import stateAsNumPy
+from utils import stateAsNumPy, saveModel
 from onnxutils import saveModelToOnnx
 
 
@@ -248,6 +248,7 @@ for i_episode in range(num_episodes):
 print('Complete')
 
 saveModelToOnnx(target_net, n_observations, 'models/trained_policy_network.onnx')
+saveModel(target_net, 'models/trained_policy_network.pt')
 plot_rewards(show_result=True)
 plt.ioff()
 plt.show()

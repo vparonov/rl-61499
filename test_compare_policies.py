@@ -19,9 +19,9 @@ from policies import HeuristicPolicy, StateFullHeuristicPolicy, RLPolicy
 
 datafolder = 'data/test'
 #datafile = 'demo_30.txt'
-datafile = 'b_801_816_1_1_1_10000_20000.txt'
+#datafile = 'b_801_816_1_1_1_10000_20000.txt'
 #datafile = 'b_979_116_1_1_1_10000_20000.txt'
-
+datafile  = 'b_983_49_1_1_1_10000_20000.txt'
 
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
 w = Warehouse('test', 'files/wh1.txt', None)
@@ -35,14 +35,15 @@ policies = [
     HeuristicPolicy(burstSize=5, waitBetweenBoxes = 1, waitBetweenBursts=8), 
     StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
     RLPolicy('models/best.onnx'), 
-#    RLPolicy('models/trained_policy_network.onnx'),
+    RLPolicy('models/trained_policy_network.onnx')
     ]
 
 policy_names = [
     'heuristic 1/0/0',
     'heuristic 5/1/8',
     'C1+C2<0.4', 
-    'rl best' 
+    'rl best',
+    'latest'
 ]
 
 sorts = ['iid', '1,2,3', '2,1,3', '3,2,1']
@@ -131,7 +132,7 @@ for i in range(len(policy_names)):
         text = ax.text(j, i, v,
                        ha='center', va='center', color=c)
 
-ax.set_title(f'Summary of {datafile}')
+ax.set_title(f'Number of steps to solve {datafile}')
 fig.tight_layout()
 plt.show()
 #plt.tight_layout()

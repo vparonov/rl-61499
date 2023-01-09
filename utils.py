@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np 
+import torch 
 
 def getInternalStateAsNumPy(internalState, sorted_components) :
     res = []
@@ -29,3 +30,12 @@ def plot(title, npstate, sorted_components):
 
 def stateAsNumPy(state, sorted_components, capacities):
     return np.asarray([state.componentsState[c] for c in sorted_components]) / capacities
+
+
+def saveModel(model, file_name):    
+    torch.save(model.state_dict(), file_name)
+
+def loadModel(model, file_name):
+    model.load_state_dict(torch.load(file_name))
+    model.eval()
+    return model

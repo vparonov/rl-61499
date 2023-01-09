@@ -100,11 +100,14 @@ class Warehouse:
             print(fileName)
             itemsToPick = BoxListFromFile(fileName)
             if random.random() > 0.8:
-                if random.random() > 0.5:
+                sort = random.randint(0, 2)
+                if sort == 0 :
                     itemsToPick.sort(reverse=False, key=lambda b: b.route)
+                elif sort == 1: 
+                    itemsToPick.sort(reverse=True, key=lambda b: 1 if b.route == 2 else 0 )
                 else:
-                    itemsToPick.sort(reverse=True, key=lambda b: b.route)
-
+                   itemsToPick.sort(reverse=True, key=lambda b: b.route)
+    
         self.source.reset()
         self.state.reset()
         for item in itemsToPick:
