@@ -6,22 +6,11 @@ from warehouse import Warehouse
 from dataloader import BoxListFromFile
 from policies import HeuristicPolicy, StateFullHeuristicPolicy, RLPolicy
 
-
-# def plot(ax, title, npstate, sorted_components):
-#     cmap = plt.cm.inferno
-#     img = ax.imshow(npstate.T, aspect= 'auto', cmap=cmap, interpolation='nearest')
-#     ax.set_yticks(range(len(sorted_components)))
-#     ax.set_yticklabels(sorted_components)
-#     ax.set_xlabel('time step')
-#     ax.set_ylabel('component')
-#     ax.set_title(title, fontsize=10)
-#     #plt.colorbar(img)
-
 datafolder = 'data/test'
 #datafile = 'demo_30.txt'
 #datafile = 'b_801_816_1_1_1_10000_20000.txt'
-#datafile = 'b_979_116_1_1_1_10000_20000.txt'
-datafile  = 'b_983_49_1_1_1_10000_20000.txt'
+datafile = 'b_979_116_1_1_1_10000_20000.txt'
+#datafile  = 'b_983_49_1_1_1_10000_20000.txt'
 
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
 w = Warehouse('test', 'files/wh1.txt', None)

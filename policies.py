@@ -1,5 +1,11 @@
 import random
+import torch
+import numpy as np 
+
 from onnxutils import loadModelFromOnnx, getPrediction
+from model import DQN
+from utils import loadModel
+
 
 SKIP = 0 
 FIFO = 1
@@ -75,3 +81,28 @@ class RLPolicy():
 
     def __call__(self, ctime, state):
         return getPrediction(self.model, state)
+
+class RLPolicyWithGrad():
+    def __init__(self, fileName):
+        n_observations = 19
+        n_actions = 2
+        device = 'cpu'
+
+        model = DQN(n_observations, n_actions).to(device)
+
+        self.model = loadModel(model, fileName)
+
+    def __call__(self, ctime, state):
+        tstate = torch.tensor(state.astype(np.float32)).unsqueeze(0)
+        tstate = tstate.to('cpu')
+        tstate.requires_grad_()
+
+        output = self.model(tstate)
+        action = output.argmax()
+
+        output_max = output[0, action]
+        output_max.backward()
+
+        self.saliency = tstate.grad.data.abs().squeeze().cpu().detach().numpy()
+
+        return action.item()
