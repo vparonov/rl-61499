@@ -77,7 +77,7 @@ EPS_END = 0.05
 EPS_DECAY = 1000
 TAU = 0.05
 LR = 1e-4
-num_episodes = 300
+num_episodes = 1000
 # +alpha = 0.80
 TRAINING_DIR = 'data/train_100_400_to_500_var'
 
@@ -120,6 +120,7 @@ def select_action(state):
         return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
 
 episode_rewards = []
+loss_log = [] 
 
 def plot_rewards(show_result=False):
     plt.figure(1)
@@ -184,6 +185,8 @@ def optimize_model():
     # Optimize the model
     optimizer.zero_grad()
     loss.backward()
+
+    loss_log.append(loss.item())
     # In-place gradient clipping
     torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100)
     optimizer.step()
@@ -241,4 +244,9 @@ saveModelToOnnx(target_net, n_observations, 'models/trained_policy_network.onnx'
 saveModel(target_net, 'models/trained_policy_network.pt')
 plot_rewards(show_result=True)
 plt.ioff()
+plt.show()
+
+plt.plot(loss_log)
+plt.xlabel('Episode')
+plt.ylabel('Loss')
 plt.show()

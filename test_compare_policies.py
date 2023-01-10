@@ -107,6 +107,8 @@ ax.set_xticklabels(sorts)
 # Loop over data dimensions and create text annotations.
 avg = np.mean(summary)
 
+nitems = len(items)
+
 for i in range(len(policy_names)):
     for j in range(len(sorts)):
         v = summary[i, j]
@@ -117,11 +119,14 @@ for i in range(len(policy_names)):
 
         if v == failed_value:
             v = 'F'
+        else:
+            v /= nitems
+            v = f'{v:.3f}'
     
         text = ax.text(j, i, v,
                        ha='center', va='center', color=c)
 
-ax.set_title(f'Number of steps to solve {datafile}')
+ax.set_title(f'Average steps per item to solve {datafile}')
 fig.tight_layout()
 plt.show()
 #plt.tight_layout()
