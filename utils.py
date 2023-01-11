@@ -7,7 +7,7 @@ def getInternalStateAsNumPy(internalState, sorted_components) :
     for c in sorted_components:
         if c == 'test.source' or c == 'test.sink':
             continue
-        res+= [b.id if b != None else 0 for b in internalState[c]]
+        res+= [b.route & (~b.pickedMask) if b != None else 0 for b in internalState[c]]
     return np.asarray(res)
 
 def appendNPState(state, sorted_components, capacities, npstate):

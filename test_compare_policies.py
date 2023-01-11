@@ -8,8 +8,8 @@ from policies import HeuristicPolicy, StateFullHeuristicPolicy, RLPolicy
 
 datafolder = 'data/test'
 #datafile = 'demo_30.txt'
-#datafile = 'b_801_816_1_1_1_10000_20000.txt'
-datafile = 'b_979_116_1_1_1_10000_20000.txt'
+datafile = 'b_801_816_1_1_1_10000_20000.txt'
+#datafile = 'b_979_116_1_1_1_10000_20000.txt'
 #datafile  = 'b_983_49_1_1_1_10000_20000.txt'
 
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
@@ -28,15 +28,16 @@ policies = [
     ]
 
 policy_names = [
-    'heuristic 1/0/0',
-    'heuristic 5/1/8',
-    'C1+C2<0.4', 
-    'rl best',
+    'heuristic_1_0_0',
+    'heuristic_5_1_8',
+    'C1C20.4', 
+    'rl_best',
     'latest'
 ]
 
+print(sorted_components)
 sorts = ['iid', '1,2,3', '2,1,3', '3,2,1']
-show_plots = False 
+show_plots = False  
 
 summary = np.zeros(shape=(len(policies), 4), dtype=int)
 
@@ -76,12 +77,12 @@ for ix, (policy, policy_name) in enumerate(zip(policies, policy_names)):
                 title = f'OK. T={ctime}, R={reward:.3f} P={policy_name} S={sorttypestr}'
                 print(title)
                 summary[ix, sorttype] = ctime
-                break
+                np.save(f'vis/full_state_{policy_name}_{sorttypestr}', fullInternalState)
                 if show_plots:
                     plot(title, npstate, sorted_components)       
                 break
             elif truncated:
-                title = f'Failed. T={ctime}, R={reward:.3f} P={policy_name} S={sorttypestr}'
+                title = f'Failed. {info} T={ctime}, R={reward:.3f} P={policy_name} S={sorttypestr}'
                 print(title)
                 if show_plots:
                     plot(title, npstate, sorted_components)
