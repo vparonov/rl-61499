@@ -5,7 +5,7 @@ from utils import plot, getInternalStateAsNumPy, stateAsNumPy
 from warehouse import Warehouse
 from dataloader import BoxListFromFile
 from policies import HeuristicPolicy, StateFullHeuristicPolicy, RLPolicy
-``
+
 datafolder = 'data/test'
 #datafile = 'demo1_3.txt'
 #datafile = 'demo3.txt'
