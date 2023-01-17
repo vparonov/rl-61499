@@ -18,7 +18,7 @@ import torch.nn.functional as F
 
 
 from warehouse import Warehouse
-from model import DQN
+from model import DQN, DQN64, DQN64_64
 from utils import stateAsNumPy, saveModel
 from onnxutils import saveModelToOnnx
 
@@ -55,30 +55,47 @@ class ReplayMemory(object):
 # LR is the learning rate of the AdamW optimizer
 
 # best hyper parameters
-# + trained with 'data/train_100_350_to_500life'
-# + alpha = 0.8 in warehouse reward
-
 # BATCH_SIZE = 512
 # GAMMA = 0.99
 # EPS_START = 0.9
 # EPS_END = 0.05
 # EPS_DECAY = 1000
-# TAU = 0.005
+# TAU = 0.05
 # LR = 1e-4
-# num_episodes = 200
+# num_episodes = 1000
 # # +alpha = 0.80
-#TRAINING_DIR = 'data/train_100_500_to_500life'
+#TRAINING_DIR = 'data/train_100_400_to_500_var'
+#reward function => return alpha * (countReceived / self.t) + (1.0-alpha) * (countReceived / self.nitems)
 
 
-BATCH_SIZE = 512
+# second best  
+# BATCH_SIZE = 512
+# GAMMA = 0.99
+# EPS_START = 0.9
+# EPS_END = 0.05
+# EPS_DECAY = 1000
+# TAU = 0.05
+# LR = 1e-4
+# num_episodes = 1000
+# # +alpha = 0.80
+# # + new reward function
+# TRAINING_DIR = 'data/train_100_400_to_500_var'
+#memory = ReplayMemory(20000)
+
+
+
+BATCH_SIZE = 256
 GAMMA = 0.99
 EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 1000
-TAU = 0.05
+TAU = 0.01
 LR = 1e-4
-num_episodes = 1000
+num_episodes = 300
+memory = ReplayMemory(20000)
+
 # +alpha = 0.80
+# + new reward function
 TRAINING_DIR = 'data/train_100_400_to_500_var'
 
 env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=True)
@@ -95,12 +112,14 @@ state, _ = env.reset()
 
 n_observations = len(sorted_components)
 
-policy_net = DQN(n_observations, n_actions).to(device)
-target_net = DQN(n_observations, n_actions).to(device)
+# best policy_net = DQN(n_observations, n_actions).to(device)
+# best target_net = DQN(n_observations, n_actions).to(device)
+
+policy_net = DQN64(n_observations, n_actions).to(device)
+target_net = DQN64(n_observations, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = ReplayMemory(20000)
 
 steps_done = 0
 
@@ -178,7 +197,6 @@ def optimize_model():
 
     # original # Compute Huber loss
     #criterion = nn.SmoothL1Loss()
-    #criterion = nn.CrossEntropyLoss()
     criterion = nn.MSELoss()
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
@@ -192,6 +210,7 @@ def optimize_model():
     optimizer.step()
 
 
+global_t = 0 
 
 for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
@@ -229,10 +248,17 @@ for i_episode in range(num_episodes):
         # θ′ ← τ θ + (1 −τ )θ′
         target_net_state_dict = target_net.state_dict()
         policy_net_state_dict = policy_net.state_dict()
+
+        # if global_t%2000 == 0:
+        #     print(f' {t} copy policy to target net')
+        #     for key in policy_net_state_dict:
+        #         target_net_state_dict[key] = policy_net_state_dict[key]
+        #     target_net.load_state_dict(target_net_state_dict)
+    
         for key in policy_net_state_dict:
             target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
         target_net.load_state_dict(target_net_state_dict)
-
+        global_t+=1
         if done:
             episode_rewards.append(reward)
             plot_rewards()

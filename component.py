@@ -31,6 +31,26 @@ class Component(object):
     def getInternalState(self):
         raise NotImplementedError
 
+    def getAgentsStatistics(self):
+        countAll = 0 
+        countIdle = 0
+        countPicking = 0
+        countWaiting = 0 
+        countOthers = 0
+
+        for a in self.agents:
+            a_status = a.status
+            countAll += 1
+            if a_status == 0:
+                countIdle += 1
+            elif a_status == 1:
+                countPicking += 1
+            elif a_status == 2:
+                countWaiting += 1
+            else:
+                countOthers += 1
+        return countAll, countIdle, countPicking, countWaiting, countOthers
+
     def reset(self):
         self.resetState()
         for child in self.children:

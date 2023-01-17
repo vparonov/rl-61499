@@ -1,19 +1,19 @@
 import random
 
 NFILES = 100
-DATA_FOLDER = 'data/train_100_400_to_500_var'
+DATA_FOLDER = 'data/train_400-500_var'
 
 SEED = 0
 
 FROM_ITEMS = 100
 TO_ITEMS = 100
 
-FROM_DEADLINE = 300
+FROM_DEADLINE = 400
 TO_DEADLINE = 500
 
-W_ONLY_D1 = 0
+W_ONLY_D1 = 1
 W_ONLY_D2 = 1
-W_BOTH = 0
+W_BOTH = 1
 
 
 if SEED > 0:

@@ -81,15 +81,58 @@ class Warehouse:
                 elif state == 3:
                     self.addAgent(s)
   
+    def getAgentsWaitingRatio(self):
+        ttlCountAll = 0
+        ttlCountWaiting = 0
+
+        for k in self.components:
+            c = self.components[k]
+
+            countAll, _, _, countWaiting, _ = c.getAgentsStatistics()
+            if countAll > 0:
+                ttlCountAll += countAll
+                ttlCountWaiting += countWaiting
+        if ttlCountAll > 0:
+            return float(ttlCountWaiting) / float(ttlCountAll)
+        else:
+            return 0.0
+        
+
     # def reward(self, state):
     #     countReceived = self.components['__sink__'].countReceived 
     #     return countReceived / self.nitems
-    
-    def reward(self, state):
-        if self.t > 0:
-            alpha = 0.80
+
+    # def reward(self, state):
+    #     if self.t > 0:
+    #         alpha = 0.50
+    #         countReceived = self.components['__sink__'].countReceived 
+    #         #return alpha * (countReceived / self.t) + (1.0-alpha) * (countReceived / self.nitems)
+    #         return alpha * (countReceived / self.t) + (1.0-alpha) * (1.0 - self.getAgentsWaitingRatio())
+    #     else:
+    #         return 0 
+
+    # def reward(self, state, terminated, truncated):
+    #     if terminated:
+    #         countReceived = self.components['__sink__'].countReceived 
+    #         return 1.0 + (countReceived / self.t)
+    #     elif truncated:
+    #         return -10.0
+    #     elif self.t > 0:
+    #          alpha = 0.80
+    #          countReceived = self.components['__sink__'].countReceived 
+    #          return alpha * (countReceived / self.t) + (1.0-alpha) * (countReceived / self.nitems)
+    #     else:
+    #         return 0 
+
+    def reward(self, state, terminated, truncated):
+        if terminated:
             countReceived = self.components['__sink__'].countReceived 
-            return alpha * (countReceived / self.t) + (1.0-alpha) * (countReceived / self.nitems)
+            return (countReceived / self.t)
+        elif truncated:
+            return 0.0
+        elif self.t > 0:
+            countReceived = self.components['__sink__'].countReceived 
+            return (countReceived / self.t)
         else:
             return 0 
 
@@ -114,7 +157,7 @@ class Warehouse:
             item.reset()
 
         self.t = 0
-        self.maxT = self.calcMaxT(itemsToPick)
+        self.maxT = 100000#self.calcMaxT(itemsToPick)
         self.nitems= len(itemsToPick)
         self.strategy.setItems(itemsToPick) 
         return self.state, '' 
@@ -124,23 +167,23 @@ class Warehouse:
         terminated = False 
         truncated = False 
         info = ''
-        reward = -10.0
         try:
             if self.t > self.maxT:
                 raise Exception(f'the maximum simulation time of {self.maxT} steps reached')
             self.source.tick(self.t)
             state = self.state 
-            reward = self.reward(state)
+            reward = self.reward(state, False, False)
             #self.source.print()
             if self.components['__sink__'].countReceived == self.nitems:
                 terminated = True
+                reward = self.reward(state, True, False)
  #               reward = 1.0 * (1.0 + self.nitems / self.t)  
  #           else:
  #               reward = self.reward(state)
         except Exception as e:
             info = e 
-            #reward = -1.0
             state = self.state 
+            reward = self.reward(state, False, True)
             truncated = True 
 
         self.t += 1 

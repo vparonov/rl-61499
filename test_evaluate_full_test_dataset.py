@@ -43,9 +43,9 @@ avg = np.zeros(1000)
 for datafile in glob.glob(f'{datafolder}/*.txt'):
 
     items = BoxListFromFile(datafile)
-    items.sort(reverse=False, key=lambda b: b.route)
+    #items.sort(reverse=False, key=lambda b: b.route)
     #items.sort(reverse=True, key=lambda b: b.route)
-    #items.sort(reverse=True, key=lambda b: 1 if b.route == 2 else 0 )
+    items.sort(reverse=False, key=lambda b: 1 if b.route == 2 else 0 )
     
     nitems = len(items)
     state, info = w.reset(items)

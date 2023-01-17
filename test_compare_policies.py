@@ -5,8 +5,10 @@ from utils import plot, getInternalStateAsNumPy, stateAsNumPy
 from warehouse import Warehouse
 from dataloader import BoxListFromFile
 from policies import HeuristicPolicy, StateFullHeuristicPolicy, RLPolicy
-
+``
 datafolder = 'data/test'
+#datafile = 'demo1_3.txt'
+#datafile = 'demo3.txt'
 #datafile = 'demo_30.txt'
 datafile = 'b_801_816_1_1_1_10000_20000.txt'
 #datafile = 'b_979_116_1_1_1_10000_20000.txt'
@@ -18,6 +20,9 @@ w = Warehouse('test', 'files/wh1.txt', None)
 sorted_components = w.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
 capacities = np.asarray(w.getCapacities(sorted_components))
+
+#uncomment to see the not normalized heatmap
+#capacities = np.ones(capacities.shape)
 
 policies = [
     HeuristicPolicy(burstSize=1, waitBetweenBoxes = 0, waitBetweenBursts=0), 
@@ -37,7 +42,7 @@ policy_names = [
 
 print(sorted_components)
 sorts = ['iid', '1,2,3', '2,1,3', '3,2,1']
-show_plots = False  
+show_plots = False #True  
 
 summary = np.zeros(shape=(len(policies), 4), dtype=int)
 
