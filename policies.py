@@ -3,7 +3,7 @@ import torch
 import numpy as np 
 
 from onnxutils import loadModelFromOnnx, getPrediction
-from model import DQN
+from model import DQN64
 from utils import loadModel
 
 
@@ -21,7 +21,10 @@ class HeuristicPolicy():
         self.fifoCount = 0
         self.skipCount = 0
 
-    def __call__(self, ctime, state):
+    def __call__(self, ctime, state, remaining_items):
+        if remaining_items == 0:
+            return SKIP 
+        
         if self.waittime == 0:
             if self.burstCounter < self.burstSize:
                 if self.waitbboxes == self.waitBetweenBoxes:
@@ -50,7 +53,10 @@ class RandomPolicy():
         self.minwait = minwait
         self.maxwait = maxwait
 
-    def __call__(self, ctime, state):
+    def __call__(self, ctime, state, remaining_items):
+        if remaining_items == 0:
+            return SKIP 
+
         if self.waittime == 0:
             self.waittime = random.randint(self.minwait, self.maxwait)
             self.waittimes.append(self.waittime)
@@ -66,7 +72,9 @@ class StateFullHeuristicPolicy():
         self.coefC1 = coefC1
         self.coefC2 = coefC2
 
-    def __call__(self, ctime, state):
+    def __call__(self, ctime, state, remaining_items):
+        if remaining_items == 0:
+            return SKIP 
         fill = (self.coefC1 * state[1] + self.coefC2 *
                 state[2]) / (self.coefC1 + self.coefC2)
 
@@ -79,7 +87,9 @@ class RLPolicy():
     def __init__(self, fileName):
          self.model = loadModelFromOnnx(fileName)
 
-    def __call__(self, ctime, state):
+    def __call__(self, ctime, state, remaining_items):
+        if remaining_items == 0:
+            return SKIP
         return getPrediction(self.model, state)
 
 class RLPolicyWithGrad():
@@ -88,11 +98,11 @@ class RLPolicyWithGrad():
         n_actions = 2
         device = 'cpu'
 
-        model = DQN(n_observations, n_actions).to(device)
+        model = DQN64(n_observations, n_actions).to(device)
 
         self.model = loadModel(model, fileName)
 
-    def __call__(self, ctime, state):
+    def __call__(self, ctime, state, remaining_items):
         tstate = torch.tensor(state.astype(np.float32)).unsqueeze(0)
         tstate = tstate.to('cpu')
         tstate.requires_grad_()

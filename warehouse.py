@@ -32,7 +32,7 @@ class Warehouse:
 
         if datadir != None:
             self.datafiles = self.enumerateDataFiles(datadir)
-            self.datafiles.sort()
+            random.shuffle(self.datafiles)
             self.fileIx = 0
         else:
             self.datafiles = []
@@ -145,12 +145,16 @@ class Warehouse:
             if random.random() > 0.8:
                 sort = random.randint(0, 2)
                 if sort == 0 :
+                    print('1,2,3')
                     itemsToPick.sort(reverse=False, key=lambda b: b.route)
                 elif sort == 1: 
+                    print('2,3,1')
                     itemsToPick.sort(reverse=True, key=lambda b: 1 if b.route == 2 else 0 )
                 else:
-                   itemsToPick.sort(reverse=True, key=lambda b: b.route)
-    
+                    print('3,2,1')
+                    itemsToPick.sort(reverse=True, key=lambda b: b.route)
+            else:
+                print('iid')
         self.source.reset()
         self.state.reset()
         for item in itemsToPick:
@@ -160,7 +164,7 @@ class Warehouse:
         self.maxT = 100000#self.calcMaxT(itemsToPick)
         self.nitems= len(itemsToPick)
         self.strategy.setItems(itemsToPick) 
-        return self.state, '' 
+        return self.state, self.nitems 
 
     def step(self, action):
         self.strategy.setAction(action)
@@ -185,9 +189,9 @@ class Warehouse:
             state = self.state 
             reward = self.reward(state, False, True)
             truncated = True 
-
+        nitems = self.strategy.remaining_items
         self.t += 1 
-        return state, reward, terminated, truncated, info
+        return state, reward, terminated, truncated, (info, nitems)
   
 
     def calcMaxT(self, itemsToPick):
@@ -200,6 +204,7 @@ class Warehouse:
         return maxt 
     def getCapacities(self, componentIds):
         return [ self.components[id].capacity if id in self.components.keys() else 1 for id in componentIds]
+    
     def addStructure(self, s):
         probe = None 
 
@@ -259,7 +264,7 @@ class Warehouse:
         self.source.connect(next) 
     
     def addAgent(self,s):
-        id, count, markStation, delay, maxBlockedTime, stationName, returnConvName = \
+        id, count, markStation, delay, maxBlockedTime, stationName, returnConvName, isStochastic = \
             [_s.strip() for _s in s.split(',')]
 
         def markAsPicked(stations):
@@ -270,7 +275,10 @@ class Warehouse:
 
         station = self.components[stationName]
         returnTo = self.components[returnConvName]
-        
+        isStochasticVal = False
+        if int(isStochastic) == 1:
+            isStochasticVal = True
+
         for i in range(int(count)):
             name = id + str(i+1)
             agent = PickingAgent(
@@ -280,7 +288,8 @@ class Warehouse:
                 markWorkload = markAsPicked([markStation]), 
                 stopConveyor = False, 
                 maxBlockedTime = int(maxBlockedTime), 
-                state = self.state)
+                state = self.state, 
+                isStochastic= isStochasticVal)
             station.add_agent(agent)
 
     def printStructure(self):
@@ -338,10 +347,12 @@ class Warehouse:
 class ActionStrategy:
     def __init__(self):
         self.ix = 0 
+        self.remaining_items = 0
   
     def setItems(self, items):
         self.ix = 0 
         self.items= items
+        self.remaining_items = len(self.items)
 
     def setAction(self, action):
         self.action = action 
@@ -351,6 +362,7 @@ class ActionStrategy:
             if self.ix < len(self.items):
                 item = self.items[self.ix]
                 self.ix += 1 
+                self.remaining_items -= 1 
                 return item
         elif self.action == SKIP:
             return None 

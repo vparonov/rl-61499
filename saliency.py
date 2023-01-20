@@ -8,8 +8,8 @@ from policies import RLPolicyWithGrad
 
 
 datafolder = 'data/test'
-#datafile = 'demo_30.txt'
-datafile = 'b_801_816_1_1_1_10000_20000.txt'
+datafile = 'demo_30.txt'
+#datafile = 'b_801_816_1_1_1_10000_20000.txt'
 #datafile = 'b_979_116_1_1_1_10000_20000.txt'
 #datafile  = 'b_983_49_1_1_1_10000_20000.txt'
 
@@ -61,7 +61,7 @@ while True:
 
 _, ax = plt.subplots(1,1)
 #img = ax.imshow(np.log(saliency_map[1:,:]).T, aspect= 'auto', cmap='gist_yarg', interpolation='nearest')
-img = ax.imshow(saliency_map[1:,1:-1].T, aspect= 'auto', cmap='viridis', interpolation='nearest')
+img = ax.imshow(saliency_map[1:,1:-1].T, aspect= 'auto', cmap='gist_yarg', interpolation='nearest')
 ax.set_yticks(range(len(sorted_components)-2))
 ax.set_yticklabels(sorted_components[1:-1])
 plt.xlabel('time step')

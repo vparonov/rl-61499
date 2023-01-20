@@ -1,4 +1,4 @@
-from xml.etree.ElementPath import prepare_predicate
+from numpy import random
 from agent import Agent
 
 IDLE = 0
@@ -10,7 +10,7 @@ class PickingAgent(Agent):
             destination=None, stopConveyor= False, 
             markWorkload = None, verbose = False, 
             maxBlockedTime = 0, 
-            state = None) :
+            state = None, isStochastic = False) :
         super().__init__(name, description)
         self.delay = delay  
         self.destination = destination
@@ -20,6 +20,7 @@ class PickingAgent(Agent):
         self.verbose = verbose
         self.maxBlockedTime = maxBlockedTime
         self.state = state
+        self.isStochastic = isStochastic
 
         self.status = IDLE
 
@@ -78,7 +79,12 @@ class PickingAgent(Agent):
 
         if self.verbose:
             print('%d agent: %s got workload: %s' % (ctime, self.name, self.workload))
-        self.counter = self.delay
+
+        if not self.isStochastic:
+            self.counter = self.delay
+        else:
+            self.counter = random.poisson(lam=self.delay, size = 1)[0]
+            #print(f'{self.name}-{self.counter}')
 
     def getInternalState(self):
         return [self.workload]

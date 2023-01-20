@@ -87,18 +87,18 @@ class ReplayMemory(object):
 BATCH_SIZE = 256
 GAMMA = 0.99
 EPS_START = 0.9
-EPS_END = 0.05
-EPS_DECAY = 1000
-TAU = 0.01
+EPS_END = 0.01
+EPS_DECAY = 10000
+TAU = 0.001
 LR = 1e-4
-num_episodes = 300
-memory = ReplayMemory(20000)
+num_episodes = 1400
+memory = ReplayMemory(200000)
 
 # +alpha = 0.80
 # + new reward function
 TRAINING_DIR = 'data/train_100_400_to_500_var'
 
-env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=True)
+env = Warehouse('dqn_test', 'files/wh1_deterministic_pickers.txt', TRAINING_DIR, randomFileSelect=False)
 
 sorted_components = env.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
@@ -115,8 +115,8 @@ n_observations = len(sorted_components)
 # best policy_net = DQN(n_observations, n_actions).to(device)
 # best target_net = DQN(n_observations, n_actions).to(device)
 
-policy_net = DQN64(n_observations, n_actions).to(device)
-target_net = DQN64(n_observations, n_actions).to(device)
+policy_net = DQN(n_observations, n_actions).to(device)
+target_net = DQN(n_observations, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
@@ -214,6 +214,10 @@ global_t = 0
 
 for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
+    if i_episode == 500:
+        print('switch to the stochastic picker''s env')
+        env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=False)
+
     state, _ = env.reset()
     # the sink component's capacity = the number of items
     capacities[-1] = env.nitems
