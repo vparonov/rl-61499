@@ -91,14 +91,13 @@ EPS_END = 0.01
 EPS_DECAY = 10000
 TAU = 0.001
 LR = 1e-4
-num_episodes = 1400
-memory = ReplayMemory(200000)
+num_episodes = 500 
+memory = ReplayMemory(300000)
 
-# +alpha = 0.80
-# + new reward function
+
 TRAINING_DIR = 'data/train_100_400_to_500_var'
 
-env = Warehouse('dqn_test', 'files/wh1_deterministic_pickers.txt', TRAINING_DIR, randomFileSelect=False)
+env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=False)
 
 sorted_components = env.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
@@ -214,9 +213,9 @@ global_t = 0
 
 for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
-    if i_episode == 500:
-        print('switch to the stochastic picker''s env')
-        env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=False)
+    # if i_episode == 500:
+    #     print('switch to the stochastic picker''s env')
+    #     env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=False)
 
     state, _ = env.reset()
     # the sink component's capacity = the number of items
@@ -227,10 +226,12 @@ for i_episode in range(num_episodes):
 
     for t in count():
         action = select_action(state)
-        observation, reward, terminated, truncated, _ = env.step(action.item())
+        observation, reward, terminated, truncated, (info, nitems) = env.step(action.item())
         reward = torch.tensor([reward], device=device)
         done = terminated or truncated
 
+        if truncated:
+            print(f'failed: {info}')
         if terminated:
             next_state = None
         else:
@@ -270,8 +271,14 @@ for i_episode in range(num_episodes):
 
 print('Complete')
 
-saveModelToOnnx(target_net, n_observations, 'models/trained_policy_network.onnx')
-saveModel(target_net, 'models/trained_policy_network.pt')
+#saveModelToOnnx(target_net, n_observations, 'models/trained_policy_network.onnx')
+#saveModel(target_net, 'models/trained_policy_network.pt')
+
+saveModelToOnnx(policy_net, n_observations, 'models/trained_policy_network.onnx')
+saveModel(policy_net, 'models/trained_policy_network.pt')
+saveModelToOnnx(target_net, n_observations, 'models/trained_target_policy_network.onnx')
+saveModel(target_net, 'models/trained_target_policy_network.pt')
+
 plot_rewards(show_result=True)
 plt.ioff()
 plt.show()

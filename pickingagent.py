@@ -12,7 +12,10 @@ class PickingAgent(Agent):
             maxBlockedTime = 0, 
             state = None, isStochastic = False) :
         super().__init__(name, description)
-        self.delay = delay  
+        self.delay = delay 
+        self.lower_bound_delay = int(delay * 0.8)
+        self.upper_bound_delay = int(delay * 1.2)
+        
         self.destination = destination
         self.predicate = predicate
         self.stopConveyor = stopConveyor
@@ -83,7 +86,8 @@ class PickingAgent(Agent):
         if not self.isStochastic:
             self.counter = self.delay
         else:
-            self.counter = random.poisson(lam=self.delay, size = 1)[0]
+            #self.counter = random.poisson(lam=self.delay, size = 1)[0]
+            self.counter = random.randint(self.lower_bound_delay, self.upper_bound_delay)
             #print(f'{self.name}-{self.counter}')
 
     def getInternalState(self):

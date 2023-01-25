@@ -20,6 +20,6 @@ end connections
 # a = picking agent, 
 # id, count, markStation, delay, maxBlockedTime, stationName, returnConvName
 begin agents 
-    p, 5, A, 80, 250, s1, c2, 0
-    q, 5, C, 80, 250, s2, c2, 0
+    p, 5, A, 80, 1250, s1, c2, 0
+    q, 5, C, 80, 1250, s2, c2, 0
 end agents 

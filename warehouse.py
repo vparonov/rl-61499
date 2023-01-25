@@ -131,8 +131,9 @@ class Warehouse:
         elif truncated:
             return 0.0
         elif self.t > 0:
-            countReceived = self.components['__sink__'].countReceived 
-            return (countReceived / self.t)
+            return (1.0 - self.getAgentsWaitingRatio())
+            #countReceived = self.components['__sink__'].countReceived 
+            #return (countReceived / self.t)
         else:
             return 0 
 

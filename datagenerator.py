@@ -1,12 +1,12 @@
 import random
 
-NFILES = 100
-DATA_FOLDER = 'data/train_400-500_var'
+NFILES = 1000
+DATA_FOLDER = 'data/train_200box_var'
 
 SEED = 0
 
-FROM_ITEMS = 100
-TO_ITEMS = 100
+FROM_ITEMS = 200
+TO_ITEMS = 200
 
 FROM_DEADLINE = 400
 TO_DEADLINE = 500

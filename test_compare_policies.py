@@ -37,7 +37,7 @@ policies = [
     StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
     RLPolicy('models/best-old-reward-function.onnx'), 
     RLPolicy('models/best.onnx'), 
-    RLPolicy('models/trained_policy_network.onnx')
+    RLPolicy('models/trained_target_policy_network.onnx')
     ]
 
 policy_names = [
