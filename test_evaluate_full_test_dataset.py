@@ -10,7 +10,13 @@ from policies import RLPolicy
 
 datafolder = 'data/test'
 
-w = Warehouse('test', 'files/wh1.txt', None)
+#w = Warehouse('test', 'files/wh1.txt', None)
+#w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
+#w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
+w = Warehouse('test', 'files/wh1_combined_agents_p50_q15.txt', None)
+#w = Warehouse('test', 'files/wh1_faster_agents.txt', None)
+#w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
+#w = Warehouse('test', 'files/wh1_even_slower_agents.txt', None)
 
 sorted_components = w.getSortedComponents()
 sorted_components_dict = {sorted_components[i]: i for i in range(len(sorted_components))}
@@ -57,10 +63,11 @@ for datafile in glob.glob(f'{datafolder}/*.txt'):
 
     #for ctime in range(100000):
     ctime = 0 
+    remaining_items = nitems 
     while True:
 
-        action = policy(ctime, normalizedState)
-        state, reward, terminated, truncated, info = w.step(action)
+        action = policy(ctime, normalizedState, remaining_items)
+        state, reward, terminated, truncated, (info,remaining_items)  = w.step(action)
 
         normalizedState = stateAsNumPy(state, sorted_components, capacities)
         normalizedState[-1] = 0
