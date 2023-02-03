@@ -9,6 +9,9 @@ class Sink(Component):
         self.countReceived += 1
         workload.setFinishTime(self.ctime) 
         self.received.append(workload)  
+        if self.ctime > 0:
+            pickTime = workload.getPickTime()
+            self.avgPickTime = self.avgPickTime + (pickTime - self.avgPickTime) / (self.countReceived) 
         return True 
 
     def putItem(self, item):
@@ -24,6 +27,7 @@ class Sink(Component):
         self.countReceived = 0
         self.ctime = 0 
         self.received = []
+        self.avgPickTime = 0
 
     def printAll(self):
         self.printState()

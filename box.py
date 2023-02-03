@@ -40,6 +40,7 @@ class Box(object):
     def reset(self):
         self.pickedMask = 0 
         self.finishTime = -1 
+        self.startTime = -1
 
     def pickAtS(self, s):   
         return self.pickAtIx(self.stationToIx(s))
@@ -53,8 +54,16 @@ class Box(object):
             return 'C'
         else:
             return str(ix- 1) 
+
+    def setStartTime(self, ctime):
+        self.startTime = ctime
     def setFinishTime(self, ctime):
+        if ctime == 1:
+            print('111')
         self.finishTime = ctime 
+
+    def getPickTime(self):
+        return self.finishTime - self.startTime
 
     def stationToIx(self, station):
         if station == 'A':

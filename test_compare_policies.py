@@ -6,6 +6,15 @@ from warehouse import Warehouse
 from dataloader import BoxListFromFile
 from policies import HeuristicPolicy, StateFullHeuristicPolicy, RLPolicy
 
+
+def save_items_statistics(items, file):
+    nitems = len(items)
+    stats1 = np.asarray([items[i].startTime for i in range(len(items))]).reshape(nitems, 1)
+    stats2 = np.asarray([items[i].finishTime for i in range(len(items))]).reshape(nitems, 1)
+    stats = np.hstack((stats1, stats2))
+    np.save(file, stats)
+    #print(f'min={np.min(processing_times)}, max={np.max(processing_times)}, mean={np.mean(processing_times)}, std={np.std(processing_times)}')
+
 datafolder = 'data/test'
 datafiles = [
     'demo1_3.txt',
@@ -16,11 +25,11 @@ datafiles = [
     'b_801_816_1_1_1_10000_20000.txt'
 ]
 
-w = Warehouse('test', 'files/wh1.txt', None)
+#w = Warehouse('test', 'files/wh1.txt', None)
 #w = Warehouse('test', 'files/wh1_deterministic_pickers.txt', None)
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
-#w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
+w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
 #w = Warehouse('test', 'files/wh1_faster_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_even_slower_agents.txt', None)
 
@@ -37,7 +46,7 @@ policies = [
     StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
     RLPolicy('models/best-old-reward-function.onnx'), 
     RLPolicy('models/best.onnx'), 
-    RLPolicy('models/trained_target_policy_network.onnx'),
+    RLPolicy('models/best_robust_target.onnx'),
     RLPolicy('models/trained_policy_network.onnx')
     ]
 
@@ -47,7 +56,7 @@ policy_names = [
     'C1C20.4', 
     'rl_old_RF',
     'rl_best',
-    'latest_target',
+    'latest_robust',
     'latest'
 ]
 
@@ -62,6 +71,9 @@ plt.rcParams["figure.autolayout"] = True
 
 nxplots = int(math.sqrt(len(datafiles)))
 nyplots = len(datafiles) - nxplots
+
+if nyplots == 0:
+    nyplots = 2
 
 fig, axes = plt.subplots(nxplots, nyplots, sharex=True, sharey=True, constrained_layout=True)
 #fig.set_size_inches(5, 5)
@@ -83,7 +95,7 @@ for ax, datafile in zip(axes.flat, datafiles):
             elif sorttype == 3:
                 items.sort(reverse=True, key=lambda b: b.route)
                 
-            state, remaining_items = w.reset(items)
+            state, remaining_items, actions_mask = w.reset(items)
             capacities[-1] = w.nitems
             
             npstate = np.zeros(len(sorted_components))
@@ -94,8 +106,8 @@ for ax, datafile in zip(axes.flat, datafiles):
             while True:
 
                 action = policy(ctime, normalizedState, remaining_items)
-                state, reward, terminated, truncated, (info, remaining_items) = w.step(action)
-
+                state, reward, terminated, truncated, (info, remaining_items, actions_mask, avgPickTime) = w.step(action)
+                #print(ctime, reward, terminated, truncated)
                 normalizedState = stateAsNumPy(state, sorted_components, capacities)
                 normalizedState[0] = action 
                 npstate = np.vstack((npstate, normalizedState))
@@ -107,11 +119,13 @@ for ax, datafile in zip(axes.flat, datafiles):
                 if terminated:
                     title = f'OK. T={ctime}, R={reward:.3f} P={policy_name} S={sorttypestr}'
                     print(title)
-                    summary[ix, sorttype] = ctime
+                    summary[ix, sorttype] = avgPickTime
                     np.save(f'vis/full_state_{policy_name}_{sorttypestr}', fullInternalState)
                     if show_plots:
-                        plot(title, npstate, sorted_components)       
+                        plot(title, npstate, sorted_components)  
+                    save_items_statistics(items, f'vis/item_stats_{datafile}_{policy_name}_{sorttypestr}')     
                     break
+                    
                 elif truncated:
                     title = f'Failed. {info} T={ctime}, R={reward:.3f} P={policy_name} S={sorttypestr}'
                     print(title)
@@ -152,8 +166,8 @@ for ax, datafile in zip(axes.flat, datafiles):
             if v == failed_value:
                 v = 'F'
             else:
-                v /= nitems
-                v = f'{v:.3f}'
+               
+                v = f'{v:.0f}'
         
             text = ax.text(j, i, v,
                         ha='center', va='center', color=c)

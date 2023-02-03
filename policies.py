@@ -10,6 +10,10 @@ from utils import loadModel
 SKIP = 0 
 FIFO = 1
 
+SELECT_1 = 1
+SELECT_2 = 2
+SELECT_3 = 3
+
 class HeuristicPolicy():
     def __init__(self, burstSize=10, waitBetweenBoxes=10, waitBetweenBursts=100):
         self.waitBetweenBursts = waitBetweenBursts

@@ -1,5 +1,6 @@
 import glob
 import random 
+import numpy as np
 
 from collections import defaultdict
 from source import Source 
@@ -12,6 +13,7 @@ from diverter import Diverter
 from dataloader import BoxListFromFile
 
 from policies import FIFO, SKIP 
+from policies import SELECT_1, SELECT_2, SELECT_3 
 
 
 class ActionSpace():
@@ -124,19 +126,37 @@ class Warehouse:
     #     else:
     #         return 0 
 
+    #reward for best - robust
     def reward(self, state, terminated, truncated):
         if terminated:
-            countReceived = self.components['__sink__'].countReceived 
-            return (countReceived / self.t)
+            avgPickTime =  self.components['__sink__'].avgPickTime 
+            if avgPickTime > 0:
+                return 100.0/avgPickTime
+            else:
+                return 0.0
         elif truncated:
             return 0.0
         elif self.t > 0:
             return (1.0 - self.getAgentsWaitingRatio())
-            #countReceived = self.components['__sink__'].countReceived 
-            #return (countReceived / self.t)
         else:
-            return 0 
+            return 0.0
 
+    
+
+    # def reward(self, state, terminated, truncated):
+    #     if terminated:
+    #         countReceived = self.components['__sink__'].countReceived 
+    #         return (countReceived / self.t)
+    #     elif truncated:
+    #         return 0
+    #     elif self.t > 0:
+    #         countReceived = self.components['__sink__'].countReceived 
+    #         #the average speed is weighted with the percentage of blocked pickers
+    #         # (i.e. the effective speed is lower, when there is a blocked picker)
+    #         return (countReceived / self.t) * (1.0 - self.getAgentsWaitingRatio())
+    #     else:
+    #         return 0 
+   
     def reset(self,itemsToPick = None):
 
         if itemsToPick == None:
@@ -162,29 +182,31 @@ class Warehouse:
             item.reset()
 
         self.t = 0
-        self.maxT = 100000#self.calcMaxT(itemsToPick)
+        self.maxT = 10000#self.calcMaxT(itemsToPick)
         self.nitems= len(itemsToPick)
         self.strategy.setItems(itemsToPick) 
-        return self.state, self.nitems 
+        return self.state, self.nitems, self.strategy.getActionsMask() 
 
     def step(self, action):
         self.strategy.setAction(action)
         terminated = False 
         truncated = False 
         info = ''
+        actionsMask = self.strategy.getEmptyActionsMask()
+        avgPickTime = -1 
         try:
             if self.t > self.maxT:
                 raise Exception(f'the maximum simulation time of {self.maxT} steps reached')
             self.source.tick(self.t)
+
+            actionsMask = self.strategy.getActionsMask() 
             state = self.state 
             reward = self.reward(state, False, False)
+            avgPickTime = self.components['__sink__'].avgPickTime 
             #self.source.print()
             if self.components['__sink__'].countReceived == self.nitems:
                 terminated = True
                 reward = self.reward(state, True, False)
- #               reward = 1.0 * (1.0 + self.nitems / self.t)  
- #           else:
- #               reward = self.reward(state)
         except Exception as e:
             info = e 
             state = self.state 
@@ -192,7 +214,7 @@ class Warehouse:
             truncated = True 
         nitems = self.strategy.remaining_items
         self.t += 1 
-        return state, reward, terminated, truncated, (info, nitems)
+        return state, reward, terminated, truncated, (info, nitems, actionsMask, avgPickTime)
   
 
     def calcMaxT(self, itemsToPick):
@@ -358,6 +380,13 @@ class ActionStrategy:
     def setAction(self, action):
         self.action = action 
 
+    def getActionsMask(self):    
+        # no masked actions 
+        return [True, True]
+
+    def getEmptyActionsMask(self):
+        return [False, False]
+
     def __call__(self, ctime):
         if self.action == FIFO:
             if self.ix < len(self.items):
@@ -367,5 +396,51 @@ class ActionStrategy:
                 return item
         elif self.action == SKIP:
             return None 
+        return None 
+
+class AdvancedActionStrategy:
+    def __init__(self):
+        self.ix = 0 
+        self.remaining_items = 0
+  
+    def setItems(self, items):
+        self.ix = 0 
+        self.route_slots = [[],[],[]]
+        self.route_ixes = [0, 0, 0]
+
+        self.items= items
+        self.remaining_items = len(self.items)
+        for ix in range(len(items)):
+            self.route_slots[items[ix].route-1].append(ix)
+
+    def getActionsMask(self):
+        # 'SKIP' action is always available
+        mask = [True, False, False, False]
+        for ix in range(3):
+            if self.route_ixes[ix] < len(self.route_slots[ix]):
+                mask[ix + 1] = True  
+
+        return mask
+
+    def getEmptyActionsMask(self):
+        return [False, False, False, False]
+
+    def setAction(self, action):
+        self.action = action 
+
+    def __call__(self, ctime):
+        if self.action == SKIP:
+            return None 
+
+        action_ix = self.action - 1
+        ix = self.route_ixes[action_ix]
+
+        if ix < len(self.route_slots[action_ix]):
+            item = self.self.route_slots[action_ix][ix]
+            ix += 1 
+            self.route_ixes[action_ix] = ix 
+            self.remaining_items -= 1 
+            return item
+
         return None 
 

@@ -18,7 +18,7 @@ import torch.nn.functional as F
 
 
 from warehouse import Warehouse
-from model import DQN, DQN64, DQN64_64
+from model import DQN, DQN64, DQN64_64, DQN256
 from utils import stateAsNumPy, saveModel
 from onnxutils import saveModelToOnnx
 
@@ -91,8 +91,8 @@ EPS_END = 0.01
 EPS_DECAY = 10000
 TAU = 0.001
 LR = 1e-4
-num_episodes = 500 
-memory = ReplayMemory(300000)
+num_episodes = 600
+memory = ReplayMemory(400000)
 
 
 TRAINING_DIR = 'data/train_100_400_to_500_var'
@@ -107,7 +107,7 @@ capacities = np.asarray(env.getCapacities(sorted_components))
 n_actions = env.action_space.n
 
 #reset without parameters randomly picks some of the files in data/train to load the items
-state, _ = env.reset()
+state, _,_ = env.reset()
 
 n_observations = len(sorted_components)
 
@@ -122,7 +122,7 @@ optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
 
 steps_done = 0
 
-def select_action(state):
+def select_action(state, actions_mask):
     global steps_done
     sample = random.random()
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
@@ -217,7 +217,7 @@ for i_episode in range(num_episodes):
     #     print('switch to the stochastic picker''s env')
     #     env = Warehouse('dqn_test', 'files/wh1.txt', TRAINING_DIR, randomFileSelect=False)
 
-    state, _ = env.reset()
+    state, _, actions_mask = env.reset()
     # the sink component's capacity = the number of items
     capacities[-1] = env.nitems
     normalizedState =  np.zeros(len(sorted_components))
@@ -225,8 +225,8 @@ for i_episode in range(num_episodes):
     state = torch.tensor(normalizedState, dtype=torch.float32, device=device).unsqueeze(0)
 
     for t in count():
-        action = select_action(state)
-        observation, reward, terminated, truncated, (info, nitems) = env.step(action.item())
+        action = select_action(state, actions_mask)
+        observation, reward, terminated, truncated, (info, nitems, actions_mask, _) = env.step(action.item())
         reward = torch.tensor([reward], device=device)
         done = terminated or truncated
 
