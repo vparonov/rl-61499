@@ -126,7 +126,7 @@ class Warehouse:
     #     else:
     #         return 0 
 
-    #reward for best - robust
+    #reward for best - robust - min processing time per item
     def reward(self, state, terminated, truncated):
         if terminated:
             avgPickTime =  self.components['__sink__'].avgPickTime 
