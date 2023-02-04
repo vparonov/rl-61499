@@ -85,13 +85,13 @@ class ReplayMemory(object):
 
 
 BATCH_SIZE = 256
-GAMMA = 0.99
+GAMMA = 0.99999
 EPS_START = 0.9
 EPS_END = 0.01
 EPS_DECAY = 10000
-TAU = 0.001
+TAU = 0.005
 LR = 1e-4
-num_episodes = 600
+num_episodes = 700
 memory = ReplayMemory(400000)
 
 

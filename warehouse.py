@@ -137,7 +137,7 @@ class Warehouse:
         elif truncated:
             return 0.0
         elif self.t > 0:
-            return (1.0 - self.getAgentsWaitingRatio())
+            return -0.1 * self.getAgentsWaitingRatio()
         else:
             return 0.0
 

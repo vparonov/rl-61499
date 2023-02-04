@@ -28,8 +28,8 @@ datafiles = [
 #w = Warehouse('test', 'files/wh1.txt', None)
 #w = Warehouse('test', 'files/wh1_deterministic_pickers.txt', None)
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
-#w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
-w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
+w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
+#w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
 #w = Warehouse('test', 'files/wh1_faster_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_even_slower_agents.txt', None)
 
@@ -129,8 +129,8 @@ for ax, datafile in zip(axes.flat, datafiles):
                 elif truncated:
                     title = f'Failed. {info} T={ctime}, R={reward:.3f} P={policy_name} S={sorttypestr}'
                     print(title)
-                    if show_plots:
-                        plot(title, npstate, sorted_components)
+                    #if policy_name == 'latest':
+                    #    plot(title, npstate, sorted_components)
                     break 
 
                 ctime += 1

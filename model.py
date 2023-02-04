@@ -12,7 +12,7 @@ class DQN(nn.Module):
     def forward(self, x):
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
-        x = self.layer3(x)
+        return self.layer3(x)
 
 class DQN256(nn.Module):
     def __init__(self, n_observations, n_actions):
