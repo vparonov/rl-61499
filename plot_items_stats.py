@@ -1,16 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#fileName = 'vis/item_stats_latest_robust_iid.npy'
-#fileName = 'vis/item_stats_b_801_816_1_1_1_10000_20000.txt_C1C20.4_iid.npy'
-fileName = 'vis/item_stats_b_801_816_1_1_1_10000_20000.txt_latest_robust_iid.npy'
-
 def plot_hist(fileName, label):
     stats = np.load(fileName)
 
-    plt.hist(stats[:,1]-stats[:,0], label=label)
+    plt.hist(stats[:,1]-stats[:,0], label=label, alpha=0.5)
 
-plot_hist('vis/item_stats_b_801_816_1_1_1_10000_20000.txt_C1C20.4_iid.npy', 'c1c20.4')
-plot_hist('vis/item_stats_b_801_816_1_1_1_10000_20000.txt_latest_robust_iid.npy', 'robust')
+plot_hist('vis/item_stats_b_979_116_1_1_1_10000_20000.txt_latest_iid.npy', 'latest')
+plot_hist('vis/item_stats_b_979_116_1_1_1_10000_20000.txt_min-per-item_iid.npy', 'min-per-item')
 plt.legend()
 plt.show()

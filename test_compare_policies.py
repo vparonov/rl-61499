@@ -43,9 +43,9 @@ capacities = np.asarray(w.getCapacities(sorted_components))
 policies = [
     HeuristicPolicy(burstSize=1, waitBetweenBoxes = 0, waitBetweenBursts=0), 
 #    HeuristicPolicy(burstSize=5, waitBetweenBoxes = 1, waitBetweenBursts=8), 
-#    StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
-    RLPolicy('models/best-old-reward-function.onnx'), 
-    RLPolicy('models/best.onnx'), 
+    StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
+#    RLPolicy('models/best-old-reward-function.onnx'), 
+#    RLPolicy('models/best.onnx'), 
     RLPolicy('models/best_robust_target.onnx'),
     RLPolicy('models/best_robust_min_processing_time.onnx'),
     RLPolicy('models/trained_policy_network.onnx')
@@ -54,9 +54,9 @@ policies = [
 policy_names = [
     'heuristic_1_0_0',
 #    'heuristic_5_1_8',
-#    'C1C20.4', 
-    'rl_old_RF',
-    'rl_best',
+    'C1C20.4', 
+#    'rl_old_RF',
+#    'rl_best',
     'latest_robust',
     'min-per-item',
     'latest'
