@@ -126,12 +126,31 @@ class Warehouse:
     #     else:
     #         return 0 
 
-    #reward for best - robust - min processing time per item
     def reward(self, state, terminated, truncated):
+        #return self.reward_min_processing_time(state, terminated, truncated)
+        return self.reward_min_total_time(state, terminated, truncated)
+
+    #reward for best - robust - min processing time per item
+    def reward_min_processing_time(self, state, terminated, truncated):
         if terminated:
             avgPickTime =  self.components['__sink__'].avgPickTime 
             if avgPickTime > 0:
                 return 100.0/avgPickTime
+            else:
+                return 0.0  
+        elif truncated:
+            return 0.0
+        elif self.t > 0:
+            return -0.1 * self.getAgentsWaitingRatio()
+        else:
+            return 0.0
+
+    #reward for best - robust - min total time per item
+    def reward_min_total_time(self, state, terminated, truncated):
+        if terminated:
+            avgTotalProcessingTime =  self.t / self.components['__sink__'].countReceived
+            if avgTotalProcessingTime > 0:
+                return 5.0/avgTotalProcessingTime
             else:
                 return 0.0
         elif truncated:
@@ -140,8 +159,7 @@ class Warehouse:
             return -0.1 * self.getAgentsWaitingRatio()
         else:
             return 0.0
-
-    
+   
 
     # def reward(self, state, terminated, truncated):
     #     if terminated:

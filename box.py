@@ -4,12 +4,14 @@ class Box(object):
     max_box_id = 0 
     max_stations = 2 
 
-    def __init__(self, id, type, route, deadline):
+    def __init__(self, id, type, route, deadline, currentTime = 0):
         self.id = int(id)
         self.type = type
         self.route = int(route)
         self.deadline = int(deadline)
+        self.putInQueueTime = currentTime
         self.reset()
+        
 
     def __str__(self):
         if self.finishTime >= 0:
@@ -41,7 +43,7 @@ class Box(object):
         self.pickedMask = 0 
         self.finishTime = -1 
         self.startTime = -1
-
+        
     def pickAtS(self, s):   
         return self.pickAtIx(self.stationToIx(s))
 
@@ -64,6 +66,10 @@ class Box(object):
 
     def getPickTime(self):
         return self.finishTime - self.startTime
+    
+    #the time between queueing and finishing
+    def getTotalProcessingTime(self):
+        return self.finishTime - self.putInQueueTime
 
     def stationToIx(self, station):
         if station == 'A':

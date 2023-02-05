@@ -28,8 +28,8 @@ datafiles = [
 #w = Warehouse('test', 'files/wh1.txt', None)
 #w = Warehouse('test', 'files/wh1_deterministic_pickers.txt', None)
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
-w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
-#w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
+#w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
+w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
 #w = Warehouse('test', 'files/wh1_faster_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_even_slower_agents.txt', None)
 
@@ -58,6 +58,7 @@ policy_names = [
     'rl_old_RF',
     'rl_best',
     'latest_robust',
+    'min-per-item',
     'latest'
 ]
 
@@ -85,6 +86,7 @@ for ax in axes.flat:
 for ax, datafile in zip(axes.flat, datafiles):
     ax.set_visible(True)
     summary = np.zeros(shape=(len(policies), 4), dtype=int)
+    summary_avg_total = np.zeros(shape=(len(policies), 4), dtype=float)
     for ix, (policy, policy_name) in enumerate(zip(policies, policy_names)):
         print('---s---------------------')
         items = BoxListFromFile(f'{datafolder}/{datafile}')
@@ -121,6 +123,7 @@ for ax, datafile in zip(axes.flat, datafiles):
                     title = f'OK. T={ctime}, R={reward:.3f} P={policy_name} S={sorttypestr}'
                     print(title)
                     summary[ix, sorttype] = avgPickTime
+                    summary_avg_total[ix, sorttype] = (1.0 * ctime) /len(items)
                     np.save(f'vis/full_state_{policy_name}_{sorttypestr}', fullInternalState)
                     if show_plots:
                         plot(title, npstate, sorted_components)  
@@ -141,8 +144,15 @@ for ax, datafile in zip(axes.flat, datafiles):
 
     summary[summary == 0] = failed_value
 
+    failed_value = 1.5 * np.max(summary_avg_total)
+
+    summary_avg_total[summary_avg_total == 0] = failed_value
+
+    #heatmap_val = summary 
+    heatmap_val = summary_avg_total 
+  
     #fig, ax = plt.subplots()
-    im = ax.imshow(summary, cmap='inferno_r')
+    im = ax.imshow(heatmap_val, cmap='inferno_r')
 
     # Show all ticks and label them with the respective list entries
     ax.set_yticks(np.arange(len(policy_names)))
@@ -152,13 +162,14 @@ for ax, datafile in zip(axes.flat, datafiles):
     ax.set_xticklabels(sorts)
 
     # Loop over data dimensions and create text annotations.
-    avg = np.mean(summary)
+    
+    avg = np.mean(heatmap_val)
 
     nitems = len(items)
 
     for i in range(len(policy_names)):
         for j in range(len(sorts)):
-            v = summary[i, j]
+            v = heatmap_val[i, j]
             if v <= avg:
                 c = 'k'
             else:
@@ -167,8 +178,9 @@ for ax, datafile in zip(axes.flat, datafiles):
             if v == failed_value:
                 v = 'F'
             else:
-               
-                v = f'{v:.0f}'
+                v1 = summary[i, j]
+                v2 = summary_avg_total[i, j]
+                v = f'{v1:.0f}\n{v2:.2f}'
         
             text = ax.text(j, i, v,
                         ha='center', va='center', color=c)
