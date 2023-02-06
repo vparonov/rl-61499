@@ -10,10 +10,10 @@ from policies import RLPolicy
 
 datafolder = 'data/test'
 
-#w = Warehouse('test', 'files/wh1.txt', None)
+w = Warehouse('test', 'files/wh1.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
-w = Warehouse('test', 'files/wh1_combined_agents_p50_q15.txt', None)
+#w = Warehouse('test', 'files/wh1_combined_agents_p50_q15.txt', None)
 #w = Warehouse('test', 'files/wh1_faster_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_even_slower_agents.txt', None)
@@ -54,7 +54,7 @@ for datafile in glob.glob(f'{datafolder}/*.txt'):
     items.sort(reverse=False, key=lambda b: 1 if b.route == 2 else 0 )
     
     nitems = len(items)
-    state, info = w.reset(items)
+    state, info, _ = w.reset(items)
     #policy = RandomPolicy(minwait=1, maxwait=5)
     npstate = np.zeros(len(sorted_components))
     normalizedState =  np.zeros(len(sorted_components))
@@ -67,7 +67,7 @@ for datafile in glob.glob(f'{datafolder}/*.txt'):
     while True:
 
         action = policy(ctime, normalizedState, remaining_items)
-        state, reward, terminated, truncated, (info,remaining_items)  = w.step(action)
+        state, reward, terminated, truncated, (info, remaining_items, actions_mask, avgPickTime)  = w.step(action)
 
         normalizedState = stateAsNumPy(state, sorted_components, capacities)
         normalizedState[-1] = 0

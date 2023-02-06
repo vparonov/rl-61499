@@ -85,13 +85,13 @@ class ReplayMemory(object):
 
 
 BATCH_SIZE = 256
-GAMMA = 0.99999
+GAMMA = 0.999999
 EPS_START = 0.9
 EPS_END = 0.01
 EPS_DECAY = 10000
 TAU = 0.005
 LR = 1e-4
-num_episodes = 700
+num_episodes = 1000
 memory = ReplayMemory(400000)
 
 
@@ -268,6 +268,11 @@ for i_episode in range(num_episodes):
             episode_rewards.append(reward)
             plot_rewards()
             break
+    if i_episode % 100 == 0:
+        saveModelToOnnx(policy_net, n_observations, f'models/trained_policy_network_{i_episode}.onnx')
+        saveModel(policy_net, f'models/trained_policy_network_{i_episode}.pt')
+        saveModelToOnnx(target_net, n_observations, f'models/trained_target_policy_network_{i_episode}.onnx')
+        saveModel(target_net, f'models/trained_target_policy_network_{i_episode}.pt')
 
 print('Complete')
 

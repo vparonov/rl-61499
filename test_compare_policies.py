@@ -25,11 +25,11 @@ datafiles = [
     'b_801_816_1_1_1_10000_20000.txt'
 ]
 
-#w = Warehouse('test', 'files/wh1.txt', None)
+w = Warehouse('test', 'files/wh1.txt', None)
 #w = Warehouse('test', 'files/wh1_deterministic_pickers.txt', None)
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
-w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
+#w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
 #w = Warehouse('test', 'files/wh1_faster_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_even_slower_agents.txt', None)
 

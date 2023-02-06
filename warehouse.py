@@ -150,13 +150,13 @@ class Warehouse:
         if terminated:
             avgTotalProcessingTime =  self.t / self.components['__sink__'].countReceived
             if avgTotalProcessingTime > 0:
-                return 5.0/avgTotalProcessingTime
+                return 4.0/avgTotalProcessingTime
             else:
                 return 0.0
         elif truncated:
             return 0.0
         elif self.t > 0:
-            return -0.1 * self.getAgentsWaitingRatio()
+            return -0.05 * self.getAgentsWaitingRatio()
         else:
             return 0.0
    
