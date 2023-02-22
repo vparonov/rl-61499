@@ -1,5 +1,6 @@
 import numpy as np
 import glob
+
 import matplotlib.pyplot as plt
 
 from utils import getInternalStateAsNumPy, stateAsNumPy, plot
@@ -8,9 +9,10 @@ from dataloader import BoxListFromFile
 from policies import RLPolicy
 
 
-datafolder = 'data/test'
+datafolder = 'data/test' #'data/test_1_to_100_1_and_2' #'data/test'
 
 w = Warehouse('test', 'files/wh1.txt', None)
+#w = Warehouse('test', 'files/wh1_deterministic_pickers.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p50_q15.txt', None)
@@ -51,7 +53,7 @@ for datafile in glob.glob(f'{datafolder}/*.txt'):
     items = BoxListFromFile(datafile)
     #items.sort(reverse=False, key=lambda b: b.route)
     #items.sort(reverse=True, key=lambda b: b.route)
-    items.sort(reverse=False, key=lambda b: 1 if b.route == 2 else 0 )
+    #items.sort(reverse=False, key=lambda b: 1 if b.route == 2 else 0 )
     
     nitems = len(items)
     state, info, _ = w.reset(items)
@@ -84,7 +86,7 @@ for datafile in glob.glob(f'{datafolder}/*.txt'):
             x.append(len(items))
             
             y.append(ctime)
-            avg[nitems] = ctime/len(items)
+            avg[nitems-1] = ctime/len(items)
             #plot(title, npstate, sorted_components)         
             break
         elif truncated:
@@ -107,7 +109,17 @@ plt.ylabel('time steps')
 plt.show()
 
 
-plt.plot(range(1000), avg, label='ok')
+plt.plot(range(1, 1001, 1), avg[:], label='ok', marker='o')
+plt.xlabel('n items')
+plt.xticks(range(0, 101, 10))
+plt.ylabel('steps per item')
+plt.grid(True, )
+plt.show()
+
+plt.plot(range(1, 1001, 1), np.log(avg[:]), label='ok')
 plt.xlabel('n items')
 plt.ylabel('steps per item')
 plt.show()
+
+for a in avg:
+    print(a)

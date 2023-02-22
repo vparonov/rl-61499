@@ -86,16 +86,18 @@ class Warehouse:
     def getAgentsWaitingRatio(self):
         ttlCountAll = 0
         ttlCountWaiting = 0
+        ttlCountIdle = 0
 
         for k in self.components:
             c = self.components[k]
 
-            countAll, _, _, countWaiting, _ = c.getAgentsStatistics()
+            countAll, countIdle, _, countWaiting, _ = c.getAgentsStatistics()
             if countAll > 0:
                 ttlCountAll += countAll
                 ttlCountWaiting += countWaiting
+                ttlCountIdle += countIdle
         if ttlCountAll > 0:
-            return float(ttlCountWaiting) / float(ttlCountAll)
+            return (float(ttlCountWaiting)) / float(ttlCountAll)
         else:
             return 0.0
         
@@ -150,13 +152,13 @@ class Warehouse:
         if terminated:
             avgTotalProcessingTime =  self.t / self.components['__sink__'].countReceived
             if avgTotalProcessingTime > 0:
-                return 4.0/avgTotalProcessingTime
+                return 5.0/avgTotalProcessingTime
             else:
                 return 0.0
         elif truncated:
             return 0.0
         elif self.t > 0:
-            return -0.05 * self.getAgentsWaitingRatio()
+            return -0.04 * self.getAgentsWaitingRatio()
         else:
             return 0.0
    
@@ -200,7 +202,7 @@ class Warehouse:
             item.reset()
 
         self.t = 0
-        self.maxT = 10000#self.calcMaxT(itemsToPick)
+        self.maxT = 20000#self.calcMaxT(itemsToPick)
         self.nitems= len(itemsToPick)
         self.strategy.setItems(itemsToPick) 
         return self.state, self.nitems, self.strategy.getActionsMask() 

@@ -15,20 +15,20 @@ def save_items_statistics(items, file):
     np.save(file, stats)
     #print(f'min={np.min(processing_times)}, max={np.max(processing_times)}, mean={np.mean(processing_times)}, std={np.std(processing_times)}')
 
-datafolder = 'data/test'
+datafolder = 'data/eval'
 datafiles = [
-    'demo1_3.txt',
-    'demo3.txt',
-    'demo_30.txt',
-    'b_983_49_1_1_1_10000_20000.txt',
-    'b_979_116_1_1_1_10000_20000.txt',
-    'b_801_816_1_1_1_10000_20000.txt'
+    '1_001box.txt',    
+    '2_003boxes.txt',  
+    '3_030boxes.txt',  
+    '4_049boxes.txt',  
+    '5_116boxes.txt',  
+    '6_816boxes.txt'
 ]
 
-w = Warehouse('test', 'files/wh1.txt', None)
+#w = Warehouse('test', 'files/wh1.txt', None)
 #w = Warehouse('test', 'files/wh1_deterministic_pickers.txt', None)
 #w = Warehouse('test', 'files/wh1_slower_agents.txt', None)
-#w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
+w = Warehouse('test', 'files/wh1_combined_agents_p5_q50.txt', None)
 #w = Warehouse('test', 'files/wh1_combined_agents_p50_q5.txt', None)
 #w = Warehouse('test', 'files/wh1_faster_agents.txt', None)
 #w = Warehouse('test', 'files/wh1_even_slower_agents.txt', None)
@@ -46,20 +46,22 @@ policies = [
     StateFullHeuristicPolicy(coefC1 = 10, coefC2 = 10, fillMargin = 0.4), 
 #    RLPolicy('models/best-old-reward-function.onnx'), 
 #    RLPolicy('models/best.onnx'), 
-    RLPolicy('models/best_robust_target.onnx'),
-    RLPolicy('models/best_robust_min_processing_time.onnx'),
-    RLPolicy('models/trained_policy_network.onnx')
+    #RLPolicy('models/best_robust_target.onnx'),
+    #RLPolicy('models/best_robust_min_processing_time.onnx'),
+    #RLPolicy('models/trained_policy_network_400.onnx'),
+    RLPolicy('models/trained_policy_network_500.onnx')
     ]
 
 policy_names = [
     'heuristic_1_0_0',
 #    'heuristic_5_1_8',
-    'C1C20.4', 
+    'C1C2_0.4', 
 #    'rl_old_RF',
 #    'rl_best',
-    'latest_robust',
-    'min-per-item',
-    'latest'
+    #'latest_robust',
+    #'min-per-item',
+    #'latest 400 ep',
+    'RL_Best'
 ]
 
 sorts = ['iid', '1,2,3', '2,1,3', '3,2,1']

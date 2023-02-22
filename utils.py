@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 import numpy as np 
 import torch 
 
@@ -15,6 +16,7 @@ def appendNPState(state, sorted_components, capacities, npstate):
     return np.vstack((npstate, tmp))
 
 def plot(title, npstate, sorted_components):
+    figure(figsize=(8, 6), dpi=80)
     cmap = plt.cm.inferno 
     _, ax = plt.subplots(1,1)
     img = ax.imshow(npstate.T, aspect= 'auto', cmap=cmap, interpolation='nearest')
@@ -22,9 +24,10 @@ def plot(title, npstate, sorted_components):
     ax.set_yticklabels(sorted_components)
     plt.xlabel('time step')
     plt.ylabel('component')
-    plt.title(title)
+    plt.title(title, fontsize = 8)
     plt.colorbar(img)
-    plt.show()
+    plt.savefig(f'fig/{title}.png')
+    #plt.show()
 
 #internal functions 
 
